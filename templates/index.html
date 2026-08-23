@@ -1,0 +1,1109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}中华传统纹样数字库 · 纹承{% endblock %}
+
+{% block extra_css %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --dh-dark: #2E1E16;
+        --dh-gold: #F0A500;
+    }
+
+    body {
+        background: #EAD7BB;
+        color: #4A2A1E;
+        font-family: 'Noto Serif SC', 'Times New Roman', serif;
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+
+    body::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        opacity: 0.08;
+        z-index: 9999;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 30px;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #D4C4A8; }
+    ::-webkit-scrollbar-thumb { background: #C23B22; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #A63A2E; }
+
+    /* ---------- 导航栏 ---------- */
+    .navbar {
+        background: rgba(234, 215, 187, 0.92);
+        backdrop-filter: blur(12px);
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        transition: all 0.4s ease;
+        border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    .navbar.scrolled {
+        background: rgba(220, 195, 150, 0.96);
+        backdrop-filter: blur(15px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-bottom-color: #C23B22;
+    }
+    .nav-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .logo {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .logo:hover { transform: scale(1.02); }
+    .logo i {
+        color: #F0A500;
+        font-size: 2rem;
+        filter: drop-shadow(0 0 2px rgba(240,165,0,0.4));
+    }
+    .logo span {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #C23B22, #F0A500);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+    .nav-links a {
+        margin: 0 1.2rem;
+        text-decoration: none;
+        color: #4A2A1E;
+        font-weight: 500;
+        transition: 0.3s;
+        position: relative;
+        padding-bottom: 5px;
+    }
+    .nav-links a::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #C23B22, #F0A500);
+        transition: width 0.3s ease;
+    }
+    .nav-links a:hover::after,
+    .nav-links a.active::after { width: 100%; }
+    .nav-links a:hover,
+    .nav-links a.active { color: #C23B22; }
+
+    .search-bar {
+        display: flex;
+        gap: 10px;
+        background: rgba(0,0,0,0.05);
+        padding: 5px 5px 5px 15px;
+        border-radius: 40px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(0,0,0,0.1);
+        transition: all 0.3s;
+    }
+    .search-bar:focus-within {
+        border-color: #C23B22;
+        box-shadow: 0 0 0 2px rgba(194,59,34,0.2);
+        background: rgba(255,245,235,0.9);
+    }
+    .search-bar input {
+        background: transparent;
+        border: none;
+        color: #4A2A1E;
+        outline: none;
+        width: 180px;
+    }
+    .search-bar input::placeholder { color: rgba(74,42,30,0.6); }
+    .search-bar button {
+        background: #C23B22;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 30px;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .search-bar button:hover {
+        background: #A63A2E;
+        transform: scale(1.02);
+    }
+
+    .user-menu i {
+        font-size: 2rem;
+        color: #C23B22;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .user-menu i:hover {
+        color: #F0A500;
+        transform: rotate(5deg);
+    }
+    .user-avatar-text {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        background-color: #C23B22;
+        color: white;
+        font-size: 1.3rem;
+        font-weight: bold;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        font-family: inherit;
+    }
+    .user-avatar-text:hover {
+        background-color: #F0A500;
+        color: #4A2A1E;
+        transform: rotate(5deg);
+    }
+    #guestLoginBtn:hover {
+        background-color: #A63A2E;
+        color: white;
+    }
+    .user-dropdown {
+        display: none;
+        position: absolute;
+        right: 0;
+        background: #FDF3E0;
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        overflow: hidden;
+        min-width: 140px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border: 1px solid #D4A373;
+    }
+    .user-dropdown a,
+    .user-dropdown button {
+        display: block;
+        width: 100%;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: #4A2A1E;
+        transition: 0.2s;
+        background: none;
+        border: none;
+        text-align: left;
+        font-family: inherit;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+    .user-dropdown a:hover,
+    .user-dropdown button:hover {
+        background: #C23B22;
+        color: white;
+    }
+
+    /* ---------- 英雄区域（3D 背景容器） ---------- */
+    .hero {
+        position: relative;          /* 相对定位，作为内部绝对定位元素的锚点 */
+        width: 100%;                 /* 宽度撑满父容器 */
+        height: 90vh;                /* 高度占视口高度的 90%，确保首屏冲击力 */
+        min-height: 600px;           /* 最小高度 600px，防止小屏幕太矮 */
+        margin-top: 80px;            /* 顶部留出 80px，避免被固定导航栏遮挡 */
+        overflow: hidden;            /* 隐藏溢出内容，保证 3D 画布不会超出圆角边界 */
+        background: #2E1E16;         /* 深褐底色，在 3D 加载前作为占位背景 */
+    }
+
+    #three-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: auto;
+        display: block;        /* 确保是块级元素 */
+        object-fit: cover;     /* 保证画布内容覆盖 */
+    }
+
+    .hero-content {
+        position: absolute;          /* 绝对定位，悬浮在 3D 画布上方 */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);  /* 经典居中技巧 */
+        z-index: 2;                 /* 高于 3D 画布，确保文字可读 */
+        text-align: center;         /* 文字居中 */
+        animation: fadeInUp 1s ease-out;  /* 入场淡入上浮动画 */
+        background: rgba(234, 215, 187, 0.4);  /* 半透明敦煌底色，透出背后 3D 场景 */
+        backdrop-filter: blur(8px);        /* 毛玻璃模糊效果，增强文字可读性 */
+        border-radius: 60px;               /* 大圆角，柔和东方美感 */
+        padding: 40px 60px;                /* 内边距，让文字不贴边 */
+        margin: 0;
+        pointer-events: none;              /* 默认不拦截鼠标事件，让点击穿透到按钮 */
+        width: auto;
+        max-width: 90%;                    /* 小屏幕下不溢出 */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);  /* 轻微阴影，增加立体感 */
+        border: 1px solid rgba(240,165,0,0.3);     /* 金色边框，与主题呼应 */
+    }
+
+    .hero-content * {
+        pointer-events: auto;       /* 卡片内部的按钮、文字可以正常交互 */
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translate(-50%, -40%); }  /* 起始：透明且偏下 */
+        to   { opacity: 1; transform: translate(-50%, -50%); }  /* 结束：完全不透明且居中 */
+    }
+
+    .hero h1 {
+        font-size: 4rem;                      /* 大标题字号 */
+        background: linear-gradient(135deg, #C23B22, #F0A500);  /* 赤红到鎏金的渐变 */
+        background-clip: text;                /* 标准写法 */
+        -webkit-background-clip: text;        /* 兼容 WebKit 内核浏览器 */
+        color: transparent;                   /* 文字透明，露出渐变背景 */
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.1);  /* 轻微文字阴影，增加层次 */
+    }
+
+    .hero p {
+        font-size: 1.3rem;
+        color: #4A2A1E;           /* 深褐色，与敦煌底色协调 */
+        margin-bottom: 2rem;
+        max-width: 700px;         /* 限制宽度，避免长行不易阅读 */
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: 500;
+    }
+
+    .hero-stats {
+        display: flex;
+        justify-content: center;  /* 三个统计数字水平居中 */
+        gap: 4rem;                /* 数字之间的间距 */
+        flex-wrap: wrap;          /* 小屏幕时自动换行 */
+    }
+
+    .stat-number {
+        display: block;
+        font-size: 2.8rem;
+        font-weight: bold;
+        color: #F0A500;           /* 鎏金色，醒目 */
+        text-shadow: 0 0 5px rgba(240,165,0,0.3);  /* 发光效果 */
+    }
+
+    .stat-label {
+        color: #C23B22;           /* 赤红色标签 */
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    /* ---------- 筛选栏 ---------- */
+    .filter-bar {
+        background: rgba(220, 195, 150, 0.85);
+        backdrop-filter: blur(8px);
+        padding: 20px 0;
+        position: sticky;
+        top: 80px;
+        z-index: 99;
+        border-bottom: 1px solid #D4A373;
+        margin-bottom: 30px;
+    }
+    .filter-bar .container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+        justify-content: center;
+    }
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .filter-group label {
+        font-weight: 600;
+        color: #C23B22;
+    }
+    .filter-group select {
+        padding: 8px 18px;
+        border-radius: 30px;
+        border: 1px solid #D4A373;
+        background: #FDF3E0;
+        color: #4A2A1E;
+        cursor: pointer;
+        outline: none;
+        transition: 0.2s;
+    }
+    .filter-group select:hover {
+        background: #FFF0E0;
+        border-color: #C23B22;
+    }
+
+    /* ========== 推荐纹样卡片：轻盈悬浮动画 ========== */
+    @keyframes float-card {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+    }
+
+    .patterns-grid {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 2rem;
+        padding: 2rem 0;
+    }
+
+    .pattern-card {
+        --card-bg: var(--dh-dark);
+        --card-gold: var(--dh-gold);
+        
+        background-color: var(--card-bg);
+        position: relative;
+        padding: 20px 10px;
+        width: 180px;
+        aspect-ratio: 1 / 2.5;
+        clip-path: polygon(
+            30% 0%, 70% 0%,
+            70% 2%, 85% 2%,
+            85% 4%, 100% 4%,
+            100% 96%, 85% 96%,
+            85% 98%, 70% 98%,
+            70% 100%, 30% 100%,
+            30% 98%, 15% 98%,
+            15% 96%, 0% 96%,
+            0% 4%, 15% 4%,
+            15% 2%, 30% 2%
+        );
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        overflow: hidden;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        animation: float-card 3s ease-in-out infinite;
+        transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+
+    .pattern-card:hover {
+        transform: scale(1.2);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        z-index: 5;
+    }
+
+    .pattern-card::after {
+        content: '';
+        position: absolute;
+        inset: 5px;
+        border: 1px solid rgba(184, 134, 11, 0.5);
+        clip-path: inherit;
+        pointer-events: none;
+        z-index: 3;
+    }
+
+    .pattern-card:hover::after {
+        border-color: var(--dh-gold);
+        opacity: 1;
+    }
+
+    /* 推荐纹样错落动画延迟 */
+    #recommendGrid .pattern-card:nth-child(1) { animation-delay: 0s; }
+    #recommendGrid .pattern-card:nth-child(2) { animation-delay: 0.3s; }
+    #recommendGrid .pattern-card:nth-child(3) { animation-delay: 0.6s; }
+    #recommendGrid .pattern-card:nth-child(4) { animation-delay: 0.9s; }
+    #recommendGrid .pattern-card:nth-child(5) { animation-delay: 1.2s; }
+    #recommendGrid .pattern-card:nth-child(6) { animation-delay: 1.5s; }
+    #recommendGrid .pattern-card:nth-child(7) { animation-delay: 1.8s; }
+    #recommendGrid .pattern-card:nth-child(8) { animation-delay: 2.1s; }
+    #recommendGrid .pattern-card:nth-child(8n+1) { animation-delay: 0s; }
+    #recommendGrid .pattern-card:nth-child(8n+2) { animation-delay: 0.3s; }
+    #recommendGrid .pattern-card:nth-child(8n+3) { animation-delay: 0.6s; }
+    #recommendGrid .pattern-card:nth-child(8n+4) { animation-delay: 0.9s; }
+    #recommendGrid .pattern-card:nth-child(8n+5) { animation-delay: 1.2s; }
+    #recommendGrid .pattern-card:nth-child(8n+6) { animation-delay: 1.5s; }
+    #recommendGrid .pattern-card:nth-child(8n+7) { animation-delay: 1.8s; }
+    #recommendGrid .pattern-card:nth-child(8n+8) { animation-delay: 2.1s; }
+
+    .pattern-card .card-img-wrapper {
+        position: relative;
+        width: 100%;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .pattern-card img {
+        width: 90%;
+        height: auto;
+        max-height: 90%;
+        object-fit: contain;
+        filter: sepia(0.2) contrast(1.2) brightness(0.8);
+        transition: filter 0.3s;
+    }
+
+    .pattern-card:hover img {
+        filter: sepia(0) contrast(1.1) brightness(1);
+    }
+
+    .pattern-card .pattern-info {
+        text-align: center;
+        padding: 15px 5px 20px 5px;
+        width: 100%;
+        color: #EAD7BB;
+        background: linear-gradient(to top, var(--card-bg) 0%, transparent 100%);
+    }
+
+    .pattern-card .pattern-info h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--card-gold);
+        margin-bottom: 5px;
+    }
+
+    .pattern-card .pattern-info .info-basic {
+        font-size: 0.8rem;
+        opacity: 0.9;
+        margin-bottom: 4px;
+    }
+
+    /* 推荐纹样：寓意悬停展开。控制推荐纹样悬停展开寓意的速度是由以下 .info-expand 的 transition 属性决定的 */
+    .pattern-card .pattern-info .info-expand {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.6s ease, opacity 0.5s ease;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        color: #D4A373;
+        margin-top: 0;
+        padding: 0 5px;
+    }
+
+    .pattern-card:hover .pattern-info .info-expand {
+        max-height: 60px;
+        opacity: 1;
+        margin-top: 6px;
+    }
+
+    .pattern-card .pattern-info .pattern-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: #D4A373;
+        margin-bottom: 6px;
+        padding: 0 5px;
+    }
+
+    /* 热门纹样描述始终可见 */
+    .pattern-card .pattern-info .pattern-desc {
+        font-size: 0.8rem;
+        opacity: 0.85;
+        line-height: 1.4;
+        padding: 0 5px;
+    }
+
+    /* 板块通用样式 */
+    .section { padding: 80px 0; position: relative; }
+    .section.bg-light { background: #EEDFC8; }
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        border-left: 5px solid #F0A500;
+        padding-left: 20px;
+    }
+    .section-header h2 {
+        font-size: 2.2rem;
+        color: #4A2A1E;
+        letter-spacing: 1px;
+    }
+    .view-all {
+        text-decoration: none;
+        color: #C23B22;
+        font-weight: 500;
+        transition: 0.3s;
+        border-bottom: 1px dashed #D4A373;
+    }
+    .view-all:hover { color: #F0A500; letter-spacing: 1px; }
+
+    .loading-spinner {
+        text-align: center;
+        padding: 50px;
+        color: #C23B22;
+        font-size: 1.3rem;
+    }
+
+    /* 页脚 */
+    .footer {
+        background: #D4A373;
+        color: #4A2A1E;
+        text-align: center;
+        padding: 45px 0;
+        margin-top: 60px;
+        position: relative;
+        overflow: hidden;
+    }
+    .footer::before {
+        content: "✽ ✿ ❀ ✤";
+        position: absolute;
+        top: 10px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 30px;
+        opacity: 0.2;
+        letter-spacing: 20px;
+        pointer-events: none;
+    }
+
+    /* 模态框 */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    }
+    .modal-content {
+        background: #FDF3E0;
+        padding: 35px;
+        border-radius: 40px;
+        width: 90%;
+        max-width: 450px;
+        border-top: 6px solid #F0A500;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .modal-content h2 { color: #C23B22; margin-bottom: 20px; }
+    .modal-content input {
+        width: 100%;
+        padding: 14px;
+        margin: 12px 0;
+        background: white;
+        border: 1px solid #D4A373;
+        border-radius: 40px;
+        color: #4A2A1E;
+        outline: none;
+    }
+    .modal-content input:focus { border-color: #C23B22; }
+    .modal-content button {
+        width: 100%;
+        padding: 12px;
+        background: #C23B22;
+        border: none;
+        border-radius: 40px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .modal-content button:hover { background: #A63A2E; }
+    .close {
+        float: right;
+        font-size: 28px;
+        cursor: pointer;
+        color: #A63A2E;
+    }
+
+    /* 滚动动画初始隐藏 */
+    .pattern-card,
+    .section-header,
+    .filter-bar {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .pattern-card.visible,
+    .section-header.visible,
+    .filter-bar.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* 按钮悬停 */
+    #toggleHeroCardBtn:hover {
+        background: rgba(240, 165, 0, 0.85);
+        color: white;
+        border-color: #F0A500;
+        transform: scale(1.05);
+    }
+    #toggleHeroCardBtn i { transition: transform 0.3s; }
+    #toggleHeroCardBtn:hover i { transform: rotate(20deg); }
+    #toggleAnimationBtn:hover {
+        background: rgba(240, 165, 0, 0.85);
+        color: white;
+        border-color: #F0A500;
+        transform: scale(1.05);
+    }
+    #toggleAnimationBtn i { transition: transform 0.3s; }
+    #toggleAnimationBtn:hover i { transform: rotate(20deg); }
+
+    /* 卡片隐藏状态 */
+    .hero-content.card-hidden {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    .hero-content.card-hidden * { pointer-events: none !important; }
+
+    /* ========== 热门纹样专属：3D 相册悬停效果 ========== */
+    #hotGrid.patterns-grid {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 2rem 0;
+        perspective: 800px;
+    }
+
+    #hotGrid .pattern-card {
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        margin: 0 2px;
+        will-change: transform;
+        animation: none !important;
+        transform: none !important;
+    }
+
+    #hotGrid .pattern-card:hover {
+        transform: scale(1.08) translateZ(30px) !important;
+        z-index: 10;
+        box-shadow: 0 25px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    #hotGrid:hover .pattern-card:not(:hover) {
+        transform: perspective(800px) rotateY(0deg) scale(0.9);
+        margin: 0 -15px;
+    }
+
+    #hotGrid .pattern-card:hover ~ .pattern-card {
+        transform: perspective(800px) rotateY(-30deg) scale(0.9) !important;
+    }
+
+    #hotGrid .pattern-card.hot-hover-left {
+        transform: perspective(800px) rotateY(30deg) scale(0.9) !important;
+        margin-right: -15px;
+    }
+
+    #hotGrid .pattern-card img {
+        transition: filter 0.3s;
+    }
+
+    #hotGrid .pattern-card:hover img {
+        filter: sepia(0) contrast(1.1) brightness(1);
+    }
+
+    #hotGrid .pattern-card:hover::after {
+        border-color: var(--dh-gold);
+        opacity: 1;
+    }
+
+    /* 移动端降级 */
+    @media (max-width: 768px) {
+        .patterns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+        .pattern-card {
+            animation: none;
+            transform: none !important;
+        }
+        .pattern-card:hover {
+            transform: translateY(-5px) !important;
+        }
+        #hotGrid .pattern-card,
+        #hotGrid .pattern-card:hover,
+        #hotGrid .pattern-card:hover ~ .pattern-card,
+        #hotGrid .pattern-card.hot-hover-left {
+            transform: none !important;
+            margin: 0 !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero" id="heroSection">
+    <div id="three-container"></div>
+
+    <!-- 卡片显隐切换按钮 -->
+    <button id="toggleHeroCardBtn" style="
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        z-index: 10;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(253, 243, 224, 0.75);
+        backdrop-filter: blur(8px);
+        border: 1px solid #D4A373;
+        color: #C23B22;
+        font-size: 1.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        pointer-events: auto;
+    " title="隐藏/显示标题卡片">
+        <i class="fas fa-eye-slash"></i>
+    </button>
+
+    <!-- 动画暂停/播放按钮 -->
+    <button id="toggleAnimationBtn" style="
+        position: absolute;
+        top: 30px;
+        right: 90px;
+        z-index: 10;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(253, 243, 224, 0.75);
+        backdrop-filter: blur(8px);
+        border: 1px solid #D4A373;
+        color: #C23B22;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        pointer-events: auto;
+    " title="暂停动画">
+        <i class="fas fa-pause"></i>
+    </button>
+
+    <div class="hero-content">
+        <h1>中华传统纹样数字库</h1>
+        <p>探索千年纹样之美，让传统艺术焕发新生</p>
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-number" id="patternCount">2486</span>
+                <span class="stat-label">纹样数量</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" id="designCount">157</span>
+                <span class="stat-label">用户设计</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">8+</span>
+                <span class="stat-label">朝代跨度</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 快捷筛选栏 -->
+<section class="filter-bar">
+    <div class="container">
+        <div class="filter-group">
+            <label>朝代</label>
+            <select id="dynastyFilter">
+                <option value="">全部</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>分类</label>
+            <select id="categoryFilter">
+                <option value="">全部</option>
+            </select>
+        </div>
+    </div>
+</section>
+
+<!-- 推荐纹样 -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2>推荐纹样</h2>
+        </div>
+        <div class="patterns-grid" id="recommendGrid">
+            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+        </div>
+    </div>
+</section>
+
+<!-- 热门纹样 -->
+<section class="section bg-light">
+    <div class="container">
+        <div class="section-header">
+            <h2>热门纹样</h2>
+        </div>
+        <div class="patterns-grid" id="hotGrid">
+            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+        </div>
+    </div>
+</section>
+
+<!-- 纹样详情模态框 -->
+<div class="modal" id="patternModal">
+    <div class="modal-content">
+        <span class="close" id="closePatternModal">&times;</span>
+        <h2 id="patternName">纹样名称</h2>
+        <img id="patternImg" src="" alt="纹样缩略图" style="width:100%; border-radius:20px; margin-bottom:15px;">
+        <p id="patternDesc">纹样描述...</p>
+        <button id="gotoDetailBtn">查看详情页</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+
+    const container = document.getElementById('three-container');
+    const hero = document.getElementById('heroSection');
+
+    if (container && hero) {
+        // 初始化场景
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color('#1C1A1A');
+        scene.fog = new THREE.FogExp2('#1C1A1A', 0.0003);
+
+        // 相机：调整视野和位置让模型居中
+        const camera = new THREE.PerspectiveCamera(45, hero.clientWidth / hero.clientHeight, 0.1, 1000);
+        camera.position.set(5, 2.8, 8);
+        camera.lookAt(0, 1.5, 0);
+
+        // 渲染器：确保画布填满容器
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(hero.clientWidth, hero.clientHeight, false);
+        renderer.domElement.style.width = '100%';
+        renderer.domElement.style.height = '100%';
+        renderer.domElement.style.display = 'block';
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        const composer = new EffectComposer(renderer);
+        composer.addPass(new RenderPass(scene, camera));
+
+        // 轨道控制器
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1.0;
+        controls.enableZoom = true;
+        controls.enablePan = false;
+        controls.rotateSpeed = 0.8;
+        controls.target.set(0, 1.5, 0);
+        controls.maxPolarAngle = Math.PI / 2;
+        controls.minDistance = 4;
+        controls.maxDistance = 15;
+
+        // 灯光系统
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        scene.add(ambientLight);
+
+        const spotLight = new THREE.SpotLight(0xffeedd, 2.5);
+        spotLight.position.set(10, 10, 10);
+        spotLight.angle = 0.35;
+        spotLight.penumbra = 0.5;
+        spotLight.decay = 1;
+        spotLight.distance = 30;
+        spotLight.castShadow = true;
+        spotLight.shadow.mapSize.width = 512;
+        spotLight.shadow.mapSize.height = 512;
+        spotLight.shadow.bias = -0.0005;
+        scene.add(spotLight);
+
+        const spotLight2 = new THREE.SpotLight(0xccbbaa, 1.2);
+        spotLight2.position.set(-3, 4, 5);
+        spotLight2.angle = 0.3;
+        spotLight2.penumbra = 0.4;
+        spotLight2.castShadow = true;
+        scene.add(spotLight2);
+
+        const backLight = new THREE.PointLight(0xcc9966, 0.8);
+        backLight.position.set(0, 2.5, -5);
+        scene.add(backLight);
+
+        const baseLight = new THREE.PointLight(0x665544, 0.6);
+        baseLight.position.set(0, 0.6, 2);
+        scene.add(baseLight);
+
+        // ---------- 加载青铜方鼎模型（含 Draco 解压） ----------
+        const loader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://unpkg.com/three@0.128.0/examples/js/libs/draco/');
+        loader.setDRACOLoader(dracoLoader);
+
+        let dingModel;
+        loader.load('/static/models/ding1.glb', (gltf) => {
+            dingModel = gltf.scene;
+            dingModel.scale.set(5.5, 5.5, 5.5);
+            dingModel.position.set(0, -0.5, 0);
+            controls.target.set(0, 2.0, 0);
+
+            dingModel.traverse(node => {
+                if (node.isMesh) {
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                    if (node.material) {
+                        node.material.roughness = 0.45;
+                        node.material.metalness = 0.75;
+                        node.material.emissive = new THREE.Color(0x000000);
+                    }
+                }
+            });
+
+            scene.add(dingModel);
+            console.log('✅ 方鼎已加载并调整位置/大小');
+        }, undefined, (error) => {
+            console.error('❌ 模型加载失败:', error);
+        });
+
+        // ---------- 星光粒子（背景氛围） ----------
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 600;
+        const starPos = new Float32Array(starCount * 3);
+
+        for (let i = 0; i < starCount * 3; i += 3) {
+            const r = 5 + Math.random() * 6;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            starPos[i] = Math.sin(phi) * Math.cos(theta) * r;
+            starPos[i+1] = Math.sin(phi) * Math.sin(theta) * r * 0.5 + 1.8;
+            starPos[i+2] = Math.cos(phi) * r;
+        }
+
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        const stars = new THREE.Points(
+            starGeo,
+            new THREE.PointsMaterial({ size: 0.03, color: 0xffdd99, transparent: true, blending: THREE.AdditiveBlending })
+        );
+        scene.add(stars);
+
+        // 响应窗口大小变化
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const { width, height } = entry.contentRect;
+                renderer.setSize(width, height, false);
+                renderer.domElement.style.width = '100%';
+                renderer.domElement.style.height = '100%';
+                composer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+            }
+        });
+        resizeObserver.observe(hero);
+
+        // 立即触发一次尺寸同步
+        const rect = hero.getBoundingClientRect();
+        renderer.setSize(rect.width, rect.height, false);
+        renderer.domElement.style.width = '100%';
+        renderer.domElement.style.height = '100%';
+        composer.setSize(rect.width, rect.height);
+        camera.aspect = rect.width / rect.height;
+        camera.updateProjectionMatrix();
+
+        // 动画暂停控制
+        let isAnimationPaused = false;
+        const toggleAnimBtn = document.getElementById('toggleAnimationBtn');
+
+        toggleAnimBtn?.addEventListener('click', () => {
+            isAnimationPaused = !isAnimationPaused;
+            const icon = toggleAnimBtn.querySelector('i');
+            if (!icon) return;
+
+            if (isAnimationPaused) {
+                icon.className = 'fas fa-play';
+                toggleAnimBtn.title = '播放动画';
+                controls.autoRotate = false;
+            } else {
+                icon.className = 'fas fa-pause';
+                toggleAnimBtn.title = '暂停动画';
+                controls.autoRotate = true;
+            }
+        });
+
+        // Hero 文字卡片显隐
+        const toggleBtn = document.getElementById('toggleHeroCardBtn');
+        const heroContent = document.querySelector('.hero-content');
+        let isCardVisible = true;
+
+        toggleBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!heroContent) return;
+
+            if (isCardVisible) {
+                heroContent.classList.add('card-hidden');
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                toggleBtn.title = '显示标题卡片';
+            } else {
+                heroContent.classList.remove('card-hidden');
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                toggleBtn.title = '隐藏标题卡片';
+            }
+            isCardVisible = !isCardVisible;
+        });
+
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (!isAnimationPaused) {
+                stars.rotation.y += 0.0002;
+            }
+
+            controls.update();
+            composer.render();
+        }
+
+        animate();
+
+        // 双击切换自动旋转
+        renderer.domElement.addEventListener('dblclick', () => {
+            controls.autoRotate = !controls.autoRotate;
+        });
+    }
+</script>
+{% endblock %}

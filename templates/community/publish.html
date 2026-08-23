@@ -1,0 +1,248 @@
+{% extends "base.html" %} {% load static %} {% block title %}发布帖子
+{% endblock%} {% block extra_css %}
+<style>
+  .publish-page {
+    background: #faf6f0;
+    min-height: calc(100vh - 120px);
+    padding: 96px 20px 30px;
+  }
+  .box {
+    max-width: 700px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 24px;
+  }
+  .title {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 24px;
+  }
+  .item {
+    margin-bottom: 16px;
+  }
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  input,
+  textarea,
+  select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+  }
+  textarea {
+    min-height: 100px;
+  }
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: #9c7a5b;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    margin-top: 10px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .btn:disabled {
+    background: #c4b09a;
+    cursor: not-allowed;
+  }
+
+  /* 参考你给的样式：返回灵感漫游首页 */
+  .back-top-left {
+    position: sticky;
+    top: 76px;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    color: #9c7a5b;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 20;
+    background: rgba(255, 253, 249, 0.95);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="publish-page">
+  <div class="box" style="padding-top: 0">
+    <!-- 只保留：返回灵感漫游首页 -->
+    <div class="back-top-left" onclick="location.href = '/community/posts/'">
+      ← 返回灵感漫游首页
+    </div>
+
+    <h2 class="title">发布帖子</h2>
+
+    <div class="item">
+      <label>标题</label>
+      <input id="title" placeholder="请输入标题/问题" />
+    </div>
+
+    <div class="item">
+      <label>内容描述</label>
+      <textarea id="content" placeholder="分享你的设计思路/描述问题"></textarea>
+    </div>
+
+    <div class="item">
+      <label>图片描述</label>
+      <input id="alt" />
+    </div>
+
+    <div class="item">
+      <label>上传图片</label>
+      <input id="image" type="file" accept="image/*" />
+    </div>
+
+    <div class="item">
+      <label>帖子类型</label>
+      <select id="type">
+        <option value="post">普通帖子</option>
+        <option value="qa">问答</option>
+      </select>
+    </div>
+
+    <div class="item">
+      <label>使用场景</label>
+      <input id="scene" placeholder="如：服饰 / 包装 / 文创" />
+    </div>
+
+    <div class="item">
+      <label>风格</label>
+      <input id="style" placeholder="如：复古 / 极简 / 国潮" />
+    </div>
+
+    <div class="item">
+      <label>配色</label>
+      <input id="color" placeholder="如：莫兰迪 / 中国传统色" />
+    </div>
+
+    <div class="item">
+      <label>谁可以看</label>
+      <select id="visible">
+        <option value="public">公开</option>
+        <option value="private">私密</option>
+      </select>
+    </div>
+
+    <div class="item">
+      <label>是否允许评论</label>
+      <select id="commentStatus">
+        <option value="open">允许</option>
+        <option value="closed">不允许</option>
+      </select>
+    </div>
+
+    <button class="btn" id="publishBtn" type="button">发布作品</button>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  const publishBtn = document.getElementById("publishBtn");
+
+  function getCookie(name) {
+    const cookies = document.cookie ? document.cookie.split("; ") : [];
+    for (let i = 0; i < cookies.length; i++) {
+      const parts = cookies[i].split("=");
+      const key = decodeURIComponent(parts[0]);
+      const value = parts.slice(1).join("=");
+      if (key === name) {
+        return decodeURIComponent(value);
+      }
+    }
+    return null;
+  }
+
+  function resetBtn() {
+    publishBtn.disabled = false;
+    publishBtn.textContent = "发布作品";
+  }
+
+  async function publishPost() {
+    publishBtn.disabled = true;
+    publishBtn.textContent = "发布中...";
+
+    try {
+      const title = document.getElementById("title").value.trim();
+      const content = document.getElementById("content").value.trim();
+      const postType = document.getElementById("type").value;
+      const scene = document.getElementById("scene").value.trim();
+      const style = document.getElementById("style").value.trim();
+      const color = document.getElementById("color").value.trim();
+      const altText = document.getElementById("alt").value.trim();
+      const visibility = document.getElementById("visible").value;
+      const commentStatus = document.getElementById("commentStatus").value;
+      const imageFile = document.getElementById("image").files[0];
+
+      if (!title || !content) {
+        alert("标题和内容不能为空");
+        resetBtn();
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+      formData.append("post_type", postType);
+      formData.append("scene", scene);
+      formData.append("style", style);
+      formData.append("color", color);
+      formData.append("alt_text", altText);
+      formData.append("visibility", visibility);
+      formData.append("comment_status", commentStatus);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      const token = localStorage.getItem("token");
+      const csrftoken = getCookie("csrftoken");
+
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Token ${token}`;
+      }
+      if (csrftoken) {
+        headers["X-CSRFToken"] = csrftoken;
+      }
+
+      const response = await fetch("/api/community/posts/create/", {
+        method: "POST",
+        credentials: "include",
+        headers: headers,
+        body: formData,
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        console.error("发帖失败返回：", data);
+
+        if (response.status === 401 || response.status === 403) {
+          alert("请先登录后再发布帖子");
+        } else {
+          alert(data.message || "发布失败，请稍后重试");
+        }
+
+        resetBtn();
+        return;
+      }
+
+      alert("发布成功");
+      window.location.href = "/community/posts/";
+    } catch (error) {
+      console.error("发布异常：", error);
+      alert("发布失败，请稍后重试");
+      resetBtn();
+    }
+  }
+
+  publishBtn.addEventListener("click", publishPost);
+</script>
+{% endblock %}

@@ -1,0 +1,1069 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}中华传统纹样数字库 · 纹承{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --bg: #f7f1e8;
+    --paper: rgba(255, 255, 255, 0.52);
+    --line: #7c513d;
+    --line-soft: rgba(124, 81, 61, 0.25);
+    --point: #7f4b33;
+    --text: #6d4635;
+    --text-soft: rgba(109, 70, 53, 0.82);
+    --gold: #b3832d;
+    --gold-soft: rgba(179, 131, 45, 0.15);
+    --shadow: rgba(90, 50, 30, 0.18);
+    --card: rgba(255, 255, 255, 0.32);
+    --active: #9a5d3b;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Noto Serif SC", "Source Han Serif SC", "STSong", serif;
+    background:
+      radial-gradient(circle at 25px 25px, rgba(131, 83, 59, 0.02) 2px, transparent 2px) 0 0 / 48px 48px,
+      repeating-radial-gradient(circle at center, rgba(131, 83, 59, 0.016) 0 3px, transparent 3px 20px),
+      var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .wrap {
+    width: min(1420px, 94vw);
+    margin: 0 auto;
+    padding: 32px 16px 40px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 20px;
+    background: #f7f1e8;
+  }
+
+  .hero h1 {
+    margin: 0;
+    color: var(--line);
+    font-size: clamp(28px, 3.2vw, 42px);
+    letter-spacing: 0.14em;
+    font-weight: 600;
+  }
+
+  .hero p {
+    margin: 14px auto 0;
+    max-width: 900px;
+    font-size: clamp(14px, 1.45vw, 18px);
+    line-height: 1.9;
+    color: var(--text-soft);
+    letter-spacing: 0.03em;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.72fr);
+    gap: 22px;
+    align-items: stretch;
+  }
+
+  .timeline-panel,
+  .info-panel {
+    background:
+      radial-gradient(circle at center, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.14)),
+      var(--paper);
+    border: 1px solid rgba(124, 81, 61, 0.08);
+    box-shadow: 0 18px 48px rgba(93, 62, 45, 0.08);
+    backdrop-filter: blur(8px);
+  }
+
+  .timeline-panel {
+    border-radius: 28px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+    min-height: 700px;
+  }
+
+  .timeline-panel::before,
+  .timeline-panel::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: min(11vw, 160px);
+    pointer-events: none;
+    opacity: 0.14;
+    z-index: 0;
+  }
+
+  .timeline-panel::before {
+    left: 0;
+    background:
+      linear-gradient(180deg, transparent, rgba(131, 83, 59, 0.08)),
+      radial-gradient(circle at 42% 20%, rgba(131, 83, 59, 0.26) 0 18%, transparent 19%),
+      radial-gradient(circle at 55% 38%, rgba(131, 83, 59, 0.15) 0 15%, transparent 16%),
+      radial-gradient(circle at 38% 68%, rgba(131, 83, 59, 0.2) 0 18%, transparent 19%),
+      radial-gradient(circle at 65% 86%, rgba(131, 83, 59, 0.16) 0 14%, transparent 15%);
+    clip-path: polygon(0 0, 76% 6%, 70% 18%, 88% 36%, 62% 52%, 76% 72%, 54% 100%, 0 100%);
+  }
+
+  .timeline-panel::after {
+    right: 0;
+    background:
+      linear-gradient(180deg, transparent, rgba(131, 83, 59, 0.08)),
+      radial-gradient(circle at 62% 22%, rgba(131, 83, 59, 0.22) 0 18%, transparent 19%),
+      radial-gradient(circle at 46% 48%, rgba(131, 83, 59, 0.15) 0 16%, transparent 17%),
+      radial-gradient(circle at 72% 75%, rgba(131, 83, 59, 0.18) 0 20%, transparent 21%);
+    clip-path: polygon(30% 0, 100% 0, 100% 100%, 26% 100%, 40% 72%, 18% 56%, 34% 30%);
+  }
+
+  .chart-head {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 10px;
+    padding: 4px 8px 0;
+  }
+
+  .chart-head .title {
+    font-size: 18px;
+    color: var(--line);
+    letter-spacing: 0.08em;
+  }
+
+  .chart-head .hint {
+    font-size: 13px;
+    color: rgba(111, 65, 43, 0.82);
+  }
+
+  .chart {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 610px;
+    overflow: hidden;
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at center, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08)),
+      repeating-radial-gradient(circle at center, rgba(131, 83, 59, 0.008) 0 2px, transparent 2px 18px),
+      var(--card);
+    box-shadow: inset 0 18px 48px rgba(93, 62, 45, 0.07);
+  }
+
+  svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: hidden;
+    touch-action: none;
+    cursor: grab;
+  }
+
+  svg.is-dragging {
+    cursor: grabbing;
+  }
+
+  .flow {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 2.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 5 7;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.92;
+  }
+
+  .dynasty-node {
+    cursor: pointer;
+    outline: none;
+  }
+
+  .dynasty-node .dot,
+  .dynasty-node .dot-core,
+  .dynasty-node .stem,
+  .dynasty-node .label-char {
+    transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease, fill 0.2s ease, stroke 0.2s ease;
+  }
+
+  .dynasty-node:hover .dot,
+  .dynasty-node:focus .dot,
+  .dynasty-node.is-active .dot {
+    filter: drop-shadow(0 8px 18px rgba(90, 50, 30, 0.28));
+    stroke: var(--active);
+  }
+
+  .dynasty-node:hover .dot-core,
+  .dynasty-node:focus .dot-core,
+  .dynasty-node.is-active .dot-core {
+    fill: #fff6ea;
+  }
+
+  .info-panel {
+    border-radius: 28px;
+    padding: 22px;
+    position: relative;
+    min-height: 700px;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .info-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+
+    /* Firefox：默认隐藏 */
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .info-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .info-scroll::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  .info-scroll::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    transition: background 0.18s ease;
+  }
+
+  /* 滚动中 或 鼠标在滚轮区域时 都显示 */
+  .info-panel.is-scrolling .info-scroll,
+  .info-scroll:hover {
+    scrollbar-color: rgba(124, 81, 61, 0.32) rgba(124, 81, 61, 0.08);
+  }
+
+  .info-panel.is-scrolling .info-scroll::-webkit-scrollbar-track,
+  .info-scroll:hover::-webkit-scrollbar-track {
+    background: rgba(124, 81, 61, 0.08);
+  }
+
+
+  .info-panel.is-scrolling .info-scroll::-webkit-scrollbar-thumb,
+  .info-scroll:hover::-webkit-scrollbar-thumb {
+    background: rgba(124, 81, 61, 0.32);
+  }
+
+
+  .panel-kicker {
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(124, 81, 61, 0.12);
+    margin-bottom: 18px;
+  }
+
+  .info-title {
+    font-size: 30px;
+    color: var(--line);
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .info-preview {
+    width: 100%;
+    max-width: 380px;
+    flex: 0 0 auto;
+    margin: 0 auto 16px;
+  }
+
+  .carousel-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 7/5;
+    border-radius: 5px;
+    overflow: hidden;
+    background: #efe7da;
+    box-shadow: inset 0 0 0 1px rgba(124, 81, 61, 0.08);
+  }
+
+  .carousel-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 249, 241, 0.88);
+    color: var(--line);
+    box-shadow: 0 4px 16px rgba(93, 62, 45, 0.12);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    line-height: 1;
+    z-index: 2;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.25s ease, background 0.2s ease;
+  }
+
+  .carousel-btn:hover,
+  .carousel-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.96);
+    outline: none;
+  }
+
+  /* .carousel-frame:hover .carousel-btn,
+    .carousel-frame:focus-within .carousel-btn {
+      opacity: 1;
+      pointer-events: auto;
+    } */
+
+  .carousel-frame:hover .carousel-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .carousel-btn:hover,
+  .carousel-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.96);
+    outline: none;
+  }
+
+  .carousel-btn.prev {
+    left: 10px;
+  }
+
+  .carousel-btn.next {
+    right: 10px;
+  }
+
+  .carousel-meta {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .carousel-counter {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: rgba(107, 63, 44, 0.78);
+    white-space: nowrap;
+  }
+
+  .carousel-dots {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    border: 0;
+    padding: 0;
+    background: rgba(124, 81, 61, 0.18);
+    cursor: pointer;
+  }
+
+  .carousel-dot.is-active {
+    background: var(--line);
+    transform: scale(1.15);
+  }
+
+  .info-block {
+    margin-bottom: 16px;
+    padding: 14px 14px 12px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.42);
+    border: 1px solid rgba(124, 81, 61, 0.08);
+  }
+
+  .info-block:last-child {
+    margin-bottom: 0;
+  }
+
+  .info-block h3 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    color: var(--line);
+    letter-spacing: 0.06em;
+  }
+
+  .info-block p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-soft);
+    line-height: 1.95;
+  }
+
+  @media (max-width: 1120px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+
+    .info-panel {
+      min-height: 0;
+      height: auto;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .wrap {
+      width: min(96vw, 1420px);
+      padding: 24px 10px 28px;
+    }
+
+    .timeline-panel,
+    .info-panel {
+      border-radius: 20px;
+    }
+
+    .timeline-panel {
+      padding: 12px;
+      min-height: auto;
+    }
+
+    .chart {
+      height: 520px;
+    }
+
+    .chart-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .info-title {
+      font-size: 24px;
+    }
+
+    .info-preview {
+      max-width: 200px;
+      margin-bottom: 14px;
+    }
+
+    .info-panel {
+      min-height: 0;
+      height: auto;
+    }
+  }
+</style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>中国纹样的演变</h1>
+      <p>从史前质朴符号到现代创意转译，纹样在题材、技法与精神内涵中持续演进。沿时间轴观察各朝代纹样的萌芽、鼎盛、转型与融合，理解其艺术语言如何随社会变迁、文化交融与审美更迭而不断焕发新生。</p>
+    </header>
+
+    <section class="layout">
+      <div class="timeline-panel">
+        <div class="chart-head">
+          <div class="title">历代纹样时间轴</div>
+          <div class="hint">滚轮缩放 · 拖动画面 · 点击节点查看详细说明</div>
+        </div>
+        <div class="chart" id="chart">
+          <svg id="scene" viewBox="0 0 2048 1060" preserveAspectRatio="xMidYMid meet" aria-labelledby="svgTitle svgDesc"
+            role="img">
+            <title id="svgTitle">中国纹样朝代演变时间轴</title>
+            <desc id="svgDesc">展示中国纹样从史前到现代的朝代演变路径，节点可交互查看详细信息。</desc>
+            <g id="sceneDecor"></g>
+            <path id="dynastyPath" class="flow"></path>
+            <g id="nodesLayer"></g>
+          </svg>
+        </div>
+      </div>
+
+      <aside class="info-panel" id="infoPanel">
+        <div class="panel-kicker">DYNASTY MOTIF</div>
+        <div class="info-header">
+          <h2 class="info-title" id="infoTitle">史前</h2>
+        </div>
+        <div class="info-scroll" id="infoScroll">
+          <div class="info-preview">
+            <div class="carousel-frame">
+              <button class="carousel-btn prev" id="carouselPrev" type="button" aria-label="查看上一张">‹</button>
+              <img id="infoImage" alt="朝代代表纹样预览" src="" />
+              <button class="carousel-btn next" id="carouselNext" type="button" aria-label="查看下一张">›</button>
+            </div>
+            <div class="carousel-meta">
+              <div class="carousel-counter" id="carouselCounter"></div>
+              <div class="carousel-dots" id="carouselDots"></div>
+            </div>
+          </div>
+          <div class="info-block">
+            <h3>时代特征</h3>
+            <p id="infoFeature"></p>
+          </div>
+          <div class="info-block">
+            <h3>形式特点</h3>
+            <p id="infoForm"></p>
+          </div>
+          <div class="info-block">
+            <h3>演变意义</h3>
+            <p id="infoEvolution"></p>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <script>
+    const BASE_W = 2048;
+    const BASE_H = 1060;
+    const NS = 'http://www.w3.org/2000/svg';
+
+    const dynasties = [
+      { name: '史前', x: 190, y: 770, dir: 'up', stem: 68 },
+      { name: '夏商周', x: 388, y: 694, dir: 'up', stem: 58 },
+      { name: '春秋战国', x: 610, y: 560, dir: 'up', stem: 70, labelClass: 'tight', labelX: -4 },
+      { name: '秦汉', x: 820, y: 490, dir: 'down', stem: 56 },
+      { name: '魏晋南北朝', x: 978, y: 328, dir: 'up', stem: 72, labelClass: 'tight', labelX: 2 },
+      { name: '隋唐', x: 1168, y: 302, dir: 'up', stem: 78 },
+      { name: '五代十国', x: 1242, y: 468, dir: 'down', stem: 58, labelClass: 'tight', labelX: 6 },
+      { name: '宋', x: 1386, y: 662, dir: 'down', stem: 56 },
+      { name: '元', x: 1562, y: 470, dir: 'up', stem: 54 },
+      { name: '明', x: 1716, y: 430, dir: 'up', stem: 50 },
+      { name: '清', x: 1860, y: 520, dir: 'down', stem: 56 },
+      { name: '现代', x: 1970, y: 446, dir: 'up', stem: 62 }
+    ];
+
+    const dynastyInfo = {
+      '史前': {
+        feature: '史前纹饰艺术与实用紧密结合，主要依附于彩陶、玉器等器物。它反映了原始社会以狩猎、农业为主的经济生活，并因地域、时间及宗教习俗差异呈现出多样的文化类型，体现了物质创造与审美意识的初步统一。',
+        form: '纹饰多位于陶器显著位置，采用红、黑、白等色彩，风格朴实明快。题材涵盖动物纹、植物纹、旋涡纹与几何纹，线条流畅简洁。半坡类型厚重、庙底沟类型饱满、马家窑类型动感，整体装饰效果极强。',
+        evolution: '纹饰内容经历了从直接摹写自然物到抽象几何图案的飞跃，标志着原始人类思维能力的巨大提升。同时，纹饰载体从实用工具向礼器、装饰品过渡，为中国后世装饰艺术奠定了造型与美学基础。'
+      },
+      '夏商周': {
+        feature: '夏商周时期属奴隶社会，为维护统治和满足贵族生活需要，青铜冶铸等手工业技艺精湛，以青铜器艺术成就最为辉煌，故称“青铜时代”。纹饰服务于礼乐制度和宗教权威，整体呈现神秘、雄奇、威严的时代风貌。',
+        form: '纹饰与铸造工艺紧密结合，适应器形体态分布于腹、颈、圈足等部位。以动物纹（饕餮、龙、鸟等）和几何纹（云雷、环带等）为主。商代纹饰华丽雄奇、神秘庄重；西周中后期趋向简练朴素，带状花纹增多，饕餮纹渐衰。',
+        evolution: '从夏代纹饰尚不发达，到商代鼎盛期的雄奇神秘，再到西周中后期的简练朴素、日趋减率，反映了奴隶社会由形成、鼎盛到趋向衰落的历史进程。纹饰风格变化也体现了礼制观念和审美风尚的逐步转型。'
+      },
+      '春秋战国': {
+        feature: '春秋战国时期，王室衰微、诸侯争霸，奴隶制瓦解而封建社会逐步建立。青铜铸造不再被王室垄断，各地形成不同地域风格。工艺美术呈现“礼崩乐坏”下的新气象，装饰艺术从神秘威严转向生活化、活泼化，反映新兴封建统治者的现实需求。',
+        form: '纹饰工艺精湛，流行模印、失蜡、鎏金、镶嵌、金银错等技法。风格繁复精巧、华丽活泼。题材上，商周的饕餮等神秘纹样减少，代之以狩猎、骑射、采桑、宴乐、攻战等生活气息浓郁的图案，造型突破对称模式，更加矫健自如。',
+        evolution: '纹饰从宗教神秘走向现实生活，从庄重威严转向活泼灵动，标志着装饰艺术服务于现实人间的重大转变。新工艺和新题材的出现，体现了生产力进步与社会变革，为汉代装饰艺术的进一步世俗化、多样化奠定了坚实基础。'
+      },
+      '秦汉': {
+        feature: '秦汉时期是中国统一多民族封建国家的建立与巩固时期，处于封建社会上升阶段。统治者利用美术宣扬统一功业、显示王权威严、表彰功臣，同时厚葬习俗盛行，促使壁画墓、画像石、画像砖广泛流行，艺术反映现实生活的广度与深度显著增强。',
+        form: '纹饰风格深沉雄大、古朴豪放，兼具浪漫主义与现实主义精神。画像石布局简洁疏朗，画像砖线刻简洁有力，瓦当构图饱满华丽。题材涵盖日常生活、历史故事、神怪传说，后期趋向粗放简率。玉器打破对称，追求活泼流动的效果。',
+        evolution: '从秦代到东汉，纹饰由宣扬皇权威严逐步转向反映世俗生活，厚葬习俗推动了墓葬装饰艺术的繁荣。四神瓦当、马踏飞燕等典型纹样确立了汉民族艺术的雄大气魄，为后世装饰艺术奠定了“深沉雄大”的美学典范。'
+      },
+      '魏晋南北朝': {
+        feature: '魏晋南北朝是动荡战乱、政权分裂的时期，但民族大融合促进了文化的新发展。佛教传播兴盛，大量寺院兴建和造像盛行，推动了建筑、雕塑及美术创作的发展。中西文化交流为纹饰艺术注入了新的外来因素。',
+        form: '建筑装饰以二方连续的缠枝花纹为基调，高雅华美。丝织纹样早期承袭汉锦，晚期粗放简朴，出现对禽对兽纹、散点朵花、波斯连珠纹及卷草纹。青瓷以莲花纹为时代特征。北朝壁画用浓烈原色，勾勒豪放。',
+        evolution: '外来佛教艺术与中国传统技法深度融合，丰富了装饰艺术的语言。植物纹样（如莲花、卷草）显著增多，取代了部分传统动物纹的主体地位。这一时期的艺术探索为隋唐装饰艺术的鼎盛与成熟风格奠定了坚实基础。'
+      },
+      '隋唐': {
+        feature: '隋唐时期结束了长期分裂，建立起统一强盛的封建王朝。社会经济繁荣，手工业发达，中外文化交流频繁，文化艺术高度发展。纹饰艺术服务于宫廷贵族及宗教（佛教、道教）需求，体现出封建社会鼎盛时期恢弘、富丽、自信的时代精神。',
+        form: '纹饰风格华丽精巧、新颖活泼，色彩瑰丽典雅。陶瓷（唐三彩、青瓷、白瓷）釉色晶莹，丝织品流行联珠对禽纹、狩猎纹，金属器（铜镜、金银器）纹饰繁复瑰丽，出现宝相花、翼兽、折枝花卉及人物故事题材，工艺精湛。',
+        evolution: '隋唐纹饰在继承前代基础上大量吸收波斯等外来文化元素（如萨珊式器型、联珠纹），并逐步本土化，形成“盛唐风格”。艺术创造与高度发达的工艺技术完美结合，使装饰艺术达到历史高峰，并深刻影响了后世及东亚邻国。'
+      },
+      '五代十国': {
+        feature: '五代时期江南吴越等地区陶瓷工艺持续发展，钱氏吴越王朝以大量精美陶瓷向中原进贡。陶瓷造型由唐代的饱满向轻巧活泼风格过渡，纹样装饰务求优美精致，为宋代纹样的高度繁荣奠定了重要基础。',
+        form: '越窑青瓷纹样以印花、刻花、堆塑等手法装饰，釉色雅净纯正呈湖绿色。纹样风格轻巧活泼、精致优美，有的还用金银镶边，整体呈现出由唐之雄浑向宋之秀美转型的过渡特征。',
+        evolution: '五代纹样上承唐代饱满雄浑之风，下启宋代轻巧秀美之格，是唐宋纹样风格转型的关键过渡期。越窑青瓷的精致化趋势，直接影响了北宋中期以后汝窑、龙泉窑纹样艺术的发展方向。'
+      },
+      '宋': {
+        feature: '宋代城市繁荣、市民阶层壮大，手工业发达，陶瓷纹样出现高度发展和繁荣。南北各地名窑辈出，纹样风格各具特色。辽金地区吸收汉族技术，创造出带有民族风格的纹样，形成群芳竞放的地方风貌。',
+        form: '陶瓷纹样以印花、刻花、划花、彩绘为主，题材有缠枝牡丹、游鱼、云鹤、婴戏等，笔墨豪放、活泼清新、具有很强的绘画性。织锦纹样活泼典雅，有几何纹、动物纹、花鸟植物纹，色彩绚丽多变。玉雕纹样趋向写实世俗。',
+        evolution: '宋代纹样摆脱了唐代的宗教神秘色彩，走向世俗化和生活化。釉下彩绘瓷纹样开创先河，绘画性增强。南北各地形成不同纹样体系，为元代青花瓷纹样的鼎盛奠定了技术与艺术基础。'
+      },
+      '元': {
+        feature: '元代版图广阔，各民族文化交流融合。景德镇成为全国制瓷中心，青花及釉里红开创彩绘瓷纹样的新局面。贵族使用的奢侈品生产突出，审美情趣变化，特别发展了加金织物，棉织印染纹样在民间普及。',
+        form: '陶瓷纹样造型较大、胎骨厚重，花纹装饰非常繁密，几乎布满器物，层次丰富繁而不乱。主题纹样有松竹梅等植物纹，辅以卷草、回纹、蕉叶，并出现历史故事题材。织锦大力发展加金织物，风格富丽。',
+        evolution: '元代青花瓷纹样的成熟标志着彩绘瓷纹样进入全盛时期，繁密饱满的装饰风格对明清陶瓷纹样产生了重大影响。各民族工艺技术的交流融合，丰富了传统装饰纹样的题材与表现形式。'
+      },
+      '明': {
+        feature: '明代纹样处于封建王朝由盛转衰时期，敬神意识逐渐衰落，世俗审美趣味增长。景德镇成为全国陶瓷中心，青花、斗彩、五彩等彩瓷纹样盛行。民间工艺纹样实用与美观结合较好，风格质朴健康，生活气息浓郁',
+        form: '瓷器纹样以青花、斗彩、五彩为代表，雅致优美、灿烂绚丽。建筑装饰雕刻善于结合多种雕刻手法，纹样精巧华美。织绣印染纹样开始大量运用象征、寓意、谐音手法表达吉祥寓意。官府纹样繁丽，民间纹样质朴清新。',
+        evolution: '明代纹样从宗教神秘转向世俗生活，吉祥寓意纹样大量流行，反映了市民阶层审美趣味的兴起。青花瓷纹样的成熟与普及，为清代彩瓷纹样的鼎盛奠定了坚实基础，开创了彩绘瓷纹样的全盛时期。'
+      },
+      '清': {
+        feature: '清代纹样品种丰富、技艺精湛，但过于讲求技艺而流于繁缛精巧。织绣印染纹样发展到中国古代最高水平。贵族化纹样在繁丽精巧背后精神面貌趋于衰靡，民间工艺纹样仍保持质朴健康风格。',
+        form: '瓷器纹样中粉彩柔润调和、珐琅彩精致，绘画性增强，出现西洋人物纹样。织绣印染纹样以象征、寓意、谐音手法表达吉祥寓意成为主流，如“五福捧寿”、“连生贵子”等。清中叶后建筑装饰纹样走向堆砌繁缛，缺乏生机。',
+        evolution: '清代纹样将吉祥寓意的表达推向极致，形成“图必有意，意必吉祥”的装饰传统。彩瓷纹样绘画性增强，艺术与技艺高度融合。但过度追求繁复精巧导致精神内涵弱化，反映了封建社会末期工艺美术由盛转衰的历史趋势。'
+      },
+      '现代': {
+        feature: '现代纹样处于工业化、信息化与全球文化交流加速的时代。数字技术、新材质新工艺广泛应用，设计更注重功能性与人性化。同时，“国潮”兴起推动传统纹样回归日常生活，成为文化自信与民族认同的载体。',
+        form: '现代纹样形式多元，融合抽象、几何、有机等表现手法，风格涵盖极简、视幻、点彩等。传统纹样被提取重构，与现代元素结合，通过数字化、动态化呈现。色彩鲜明或柔和，强调个性与视觉冲击力。',
+        evolution: '现代纹样实现了传统美学的当代“活化”——从博物馆走向日常生活，从单一平面转向多维融合（空间、媒体、交互）。它既保留了传统文化的“形”与“神”，又适应了现代审美与功能需求，推动了中华文化的创新传播。'
+      }
+    };
+
+    const motifs = {
+      '史前': ['#efe2c7', '#80543a', 'M64 124 C80 76, 140 76, 156 124 M84 106 Q110 46 136 106'],
+      '夏商周': ['#ead7bc', '#7a452d', 'M58 128 Q110 58 162 128 M76 94 L110 60 L144 94'],
+      '春秋战国': ['#efe4ce', '#7f5036', 'M62 136 C74 90, 146 90, 158 136 M72 140 Q110 82 148 140'],
+      '秦汉': ['#eadbc7', '#874c33', 'M64 132 Q110 56 156 132 M86 86 H134 M110 64 V106'],
+      '魏晋南北朝': ['#eee2d2', '#74503f', 'M62 128 Q86 74 110 128 T158 128 M84 98 Q110 62 136 98'],
+      '隋唐': ['#f1e0c8', '#904e2f', 'M60 136 C80 80, 140 80, 160 136 M76 122 Q110 54 144 122'],
+      '五代十国': ['#ead5c0', '#845139', 'M64 128 C76 92, 98 82, 110 104 C122 126, 144 118, 156 84'],
+      '宋': ['#e9dccf', '#6f4a37', 'M66 130 Q110 78 154 130 M86 114 Q110 90 134 114'],
+      '元': ['#e7dac6', '#7e4f37', 'M64 132 C88 68, 132 68, 156 132 M76 96 C94 122, 126 122, 144 96'],
+      '明': ['#f0e2d0', '#884f36', 'M62 132 L110 64 L158 132 M80 116 H140'],
+      '清': ['#ece0cf', '#7c4d3c', 'M62 130 Q84 66 106 130 T150 130 M78 94 Q110 126 142 94'],
+      '现代': ['#ebe6df', '#6d584b', 'M60 130 C82 88, 138 88, 160 130 M82 132 L138 78']
+    };
+
+    // 这里就是你以后替换图片的位置：
+    // 把图片放到与 HTML 同级目录下的 static/dynasty/ 文件夹中，
+    // 然后按下面这种写法填写每个朝代的多张图片路径。
+    const customImages = {
+      '史前': ['/static/dynasty/shiqian-1.jpg', '/static/dynasty/shiqian-2.jpg', '/static/dynasty/shiqian-3.jpg'],
+      '夏商周': ['/static/dynasty/xia-shang-zhou-1.jpg', '/static/dynasty/xia-shang-zhou-2.jpg', '/static/dynasty/xia-shang-zhou-3.jpg'],
+      '春秋战国': ['/static/dynasty/chunqiu-1.jpg', '/static/dynasty/chunqiu-2.jpg', '/static/dynasty/chunqiu-3.jpg'],
+      '秦汉': ['/static/dynasty/qinhan-1.jpg', '/static/dynasty/qinhan-2.jpg', '/static/dynasty/qinhan-3.jpg'],
+      '魏晋南北朝': ['/static/dynasty/weijin-1.jpg', '/static/dynasty/weijin-2.jpg', '/static/dynasty/weijin-3.jpg'],
+      '隋唐': ['/static/dynasty/suitang-1.jpg', '/static/dynasty/suitang-2.jpg', '/static/dynasty/suitang-3.jpg'],
+      '五代十国': ['/static/dynasty/wudai-1.jpg', '/static/dynasty/wudai-2.jpg', '/static/dynasty/wudai-3.jpg'],
+      '宋': ['/static/dynasty/song-1.jpg', '/static/dynasty/song-2.jpg', '/static/dynasty/song-3.jpg'],
+      '元': ['/static/dynasty/yuan-1.jpg', '/static/dynasty/yuan-2.jpg', '/static/dynasty/yuan-3.jpg'],
+      '明': ['/static/dynasty/ming-1.jpg', '/static/dynasty/ming-2.jpg', '/static/dynasty/ming-3.jpg'],
+      '清': ['/static/dynasty/qing-1.jpg', '/static/dynasty/qing-2.jpg', '/static/dynasty/qing-3.jpg'],
+      '现代': ['/static/dynasty/modern-1.jpg', '/static/dynasty/modern-2.jpg', '/static/dynasty/modern-3.jpg']
+    };
+
+    const curvePoints = [
+      [-40, 804], [84, 788], [190, 770], [288, 742], [388, 694], [498, 626], [610, 560],
+      [730, 514], [820, 490], [892, 442], [936, 374], [978, 328], [1062, 294], [1168, 302],
+      [1220, 352], [1252, 420], [1242, 468], [1204, 522], [1160, 566], [1136, 612], [1166, 650],
+      [1236, 670], [1314, 674], [1386, 662], [1456, 602], [1512, 530], [1562, 470], [1638, 434],
+      [1716, 430], [1792, 454], [1860, 520], [1914, 492], [1970, 446], [2050, 418]
+    ].map(([x, y]) => ({ x, y }));
+
+    const svg = document.getElementById('scene');
+    const path = document.getElementById('dynastyPath');
+    const nodesLayer = document.getElementById('nodesLayer');
+    const sceneDecor = document.getElementById('sceneDecor');
+    const chartEl = document.getElementById('chart');
+
+    const infoPanel = document.getElementById('infoPanel');
+    const infoScroll = document.getElementById('infoScroll');
+    const infoTitle = document.getElementById('infoTitle');
+    const infoImage = document.getElementById('infoImage');
+    const infoFeature = document.getElementById('infoFeature');
+    const infoForm = document.getElementById('infoForm');
+    const infoEvolution = document.getElementById('infoEvolution');
+    const carouselPrev = document.getElementById('carouselPrev');
+    const carouselNext = document.getElementById('carouselNext');
+    const carouselCounter = document.getElementById('carouselCounter');
+    const carouselDots = document.getElementById('carouselDots');
+
+    const baseViewBox = { x: 0, y: 0, width: BASE_W, height: BASE_H };
+    const nodeMap = new Map();
+    let activeName = '史前';
+    let activeImageIndex = 0;
+    let scrollTimer = null;
+    let autoplayTimer = null;
+    let fadeTimer = null;
+    const AUTOPLAY_DELAY = 3000;
+    const FADE_DURATION = 500;
+
+    const zoomState = {
+      scale: 1,
+      minScale: 1,
+      maxScale: 6,
+      tx: 0,
+      ty: 0,
+      isPanning: false,
+      pointerId: null,
+      startClientX: 0,
+      startClientY: 0,
+      startTx: 0,
+      startTy: 0
+    };
+
+    function createSvgEl(tag, attrs = {}) {
+      const el = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+      return el;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function patternDataUri(name, base, accent, motif) {
+      const svgText = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220">
+          <defs>
+            <pattern id="p" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+              <rect width="40" height="40" fill="${base}"/>
+              <path d="M0 20 Q10 4 20 20 T40 20" fill="none" stroke="${accent}" stroke-width="2" opacity="0.55"/>
+              <circle cx="20" cy="20" r="4" fill="${accent}" opacity="0.45"/>
+            </pattern>
+          </defs>
+          <rect width="220" height="220" rx="110" ry="110" fill="url(#p)"/>
+          <circle cx="110" cy="110" r="82" fill="none" stroke="${accent}" stroke-width="4.5" opacity="0.65"/>
+          <path d="${motif}" fill="none" stroke="${accent}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+          <text x="110" y="194" text-anchor="middle" font-size="22" fill="${accent}" font-family="STSong, SimSun, serif">${name}</text>
+        </svg>`;
+      return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgText);
+    }
+
+    function getPreviewImages(name) {
+      const m = motifs[name] || motifs['史前'];
+      const fallback = patternDataUri(name, m[0], m[1], m[2]);
+      const value = customImages[name];
+      if (Array.isArray(value) && value.length) return value;
+      if (typeof value === 'string' && value) return [value];
+      return [fallback];
+    }
+
+    function renderCarousel(name, index = 0, withFade = false) {
+      const images = getPreviewImages(name);
+      const nextIndex = ((index % images.length) + images.length) % images.length;
+
+      const updateCarouselUI = () => {
+        activeImageIndex = nextIndex;
+        infoImage.src = images[activeImageIndex];
+        infoImage.alt = `${name}代表纹样预览 ${activeImageIndex + 1}`;
+        carouselPrev.disabled = images.length <= 1;
+        carouselNext.disabled = images.length <= 1;
+        carouselDots.innerHTML = '';
+
+        images.forEach((_, idx) => {
+          const dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = `carousel-dot${idx === activeImageIndex ? ' is-active' : ''}`;
+          dot.setAttribute('aria-label', `查看第 ${idx + 1} 张图片`);
+          dot.addEventListener('click', () => {
+            stopAutoplay();
+            renderCarousel(name, idx, true);
+          });
+          carouselDots.appendChild(dot);
+        });
+      };
+
+      window.clearTimeout(fadeTimer);
+
+      if (!withFade) {
+        infoImage.classList.remove('is-fading');
+        updateCarouselUI();
+        return;
+      }
+
+      infoImage.classList.add('is-fading');
+
+      fadeTimer = window.setTimeout(() => {
+        updateCarouselUI();
+        requestAnimationFrame(() => {
+          infoImage.classList.remove('is-fading');
+        });
+      }, FADE_DURATION);
+    }
+
+    function startAutoplay() {
+      stopAutoplay();
+      const images = getPreviewImages(activeName);
+      if (images.length <= 1) return;
+
+      autoplayTimer = window.setInterval(() => {
+        renderCarousel(activeName, activeImageIndex + 1, true);
+      }, AUTOPLAY_DELAY);
+    }
+
+    function stopAutoplay() {
+      if (autoplayTimer) {
+        window.clearInterval(autoplayTimer);
+        autoplayTimer = null;
+      }
+    }
+
+    function catmullRomToBezier(points) {
+      if (points.length < 2) return '';
+      let d = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+      for (let i = 0; i < points.length - 1; i++) {
+        const p0 = points[i - 1] || points[i];
+        const p1 = points[i];
+        const p2 = points[i + 1];
+        const p3 = points[i + 2] || p2;
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = p1.y + (p2.y - p0.y) / 6;
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        d += ` C ${cp1x.toFixed(2)} ${cp1y.toFixed(2)}, ${cp2x.toFixed(2)} ${cp2y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+      }
+      return d;
+    }
+
+    function getSvgPoint(clientX, clientY) {
+      const pt = svg.createSVGPoint();
+      pt.x = clientX;
+      pt.y = clientY;
+      const ctm = svg.getScreenCTM();
+      return ctm ? pt.matrixTransform(ctm.inverse()) : { x: clientX, y: clientY };
+    }
+
+    function clampPan() {
+      const maxTx = ((zoomState.scale - 1) * BASE_W) / 2;
+      const maxTy = ((zoomState.scale - 1) * BASE_H) / 2;
+      zoomState.tx = clamp(zoomState.tx, -maxTx, maxTx);
+      zoomState.ty = clamp(zoomState.ty, -maxTy, maxTy);
+    }
+
+    function applyZoom() {
+      const width = baseViewBox.width / zoomState.scale;
+      const height = baseViewBox.height / zoomState.scale;
+      clampPan();
+      const x = baseViewBox.x + (baseViewBox.width - width) / 2 + zoomState.tx;
+      const y = baseViewBox.y + (baseViewBox.height - height) / 2 + zoomState.ty;
+      svg.setAttribute('viewBox', `${x.toFixed(2)} ${y.toFixed(2)} ${width.toFixed(2)} ${height.toFixed(2)}`);
+    }
+
+    function zoomAt(clientX, clientY, scaleFactor) {
+      const before = getSvgPoint(clientX, clientY);
+      const nextScale = clamp(zoomState.scale * scaleFactor, zoomState.minScale, zoomState.maxScale);
+      if (nextScale === zoomState.scale) return;
+      zoomState.scale = nextScale;
+      applyZoom();
+      const after = getSvgPoint(clientX, clientY);
+      zoomState.tx += before.x - after.x;
+      zoomState.ty += before.y - after.y;
+      applyZoom();
+    }
+
+    function resetZoom() {
+      zoomState.scale = 1;
+      zoomState.tx = 0;
+      zoomState.ty = 0;
+      applyZoom();
+    }
+
+    function initZoomControls() {
+      applyZoom();
+
+      chartEl.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        const factor = event.deltaY < 0 ? 1.12 : 1 / 1.12;
+        zoomAt(event.clientX, event.clientY, factor);
+      }, { passive: false });
+
+      svg.addEventListener('pointerdown', (event) => {
+        if (event.button !== 0) return;
+        zoomState.isPanning = true;
+        zoomState.pointerId = event.pointerId;
+        zoomState.startClientX = event.clientX;
+        zoomState.startClientY = event.clientY;
+        zoomState.startTx = zoomState.tx;
+        zoomState.startTy = zoomState.ty;
+        svg.classList.add('is-dragging');
+        if (svg.setPointerCapture) svg.setPointerCapture(event.pointerId);
+      });
+
+      svg.addEventListener('pointermove', (event) => {
+        if (!zoomState.isPanning || event.pointerId !== zoomState.pointerId) return;
+        const currentViewWidth = baseViewBox.width / zoomState.scale;
+        const currentViewHeight = baseViewBox.height / zoomState.scale;
+        const dx = (event.clientX - zoomState.startClientX) * (currentViewWidth / chartEl.clientWidth);
+        const dy = (event.clientY - zoomState.startClientY) * (currentViewHeight / chartEl.clientHeight);
+        zoomState.tx = zoomState.startTx - dx;
+        zoomState.ty = zoomState.startTy - dy;
+        applyZoom();
+      });
+
+      const stopPan = (event) => {
+        if (zoomState.pointerId !== null && event.pointerId !== undefined && event.pointerId !== zoomState.pointerId) return;
+        zoomState.isPanning = false;
+        zoomState.pointerId = null;
+        svg.classList.remove('is-dragging');
+      };
+
+      svg.addEventListener('pointerup', stopPan);
+      svg.addEventListener('pointercancel', stopPan);
+      svg.addEventListener('pointerleave', stopPan);
+      svg.addEventListener('dblclick', resetZoom);
+    }
+
+    function buildDecor() {
+      const defs = createSvgEl('defs');
+      const filter = createSvgEl('filter', {
+        id: 'softShadow', x: '-20%', y: '-20%', width: '140%', height: '140%'
+      });
+      filter.appendChild(createSvgEl('feDropShadow', {
+        dx: '0', dy: '8', 'stdDeviation': '8', 'flood-color': 'rgba(90,50,30,0.22)'
+      }));
+      defs.appendChild(filter);
+      sceneDecor.appendChild(defs);
+    }
+
+    function getPreviewPosition(x, y) {
+      const size = 220;
+      const gap = 22;
+      let px = x + gap;
+      let py = y - size - gap;
+      if (x > BASE_W * 0.72) px = x - size - gap;
+      if (y < BASE_H * 0.34) py = y + gap;
+      px = clamp(px, 16, BASE_W - size - 16);
+      py = clamp(py, 16, BASE_H - size - 16);
+      return { x: px, y: py, size };
+    }
+
+    function addVerticalLabel(group, text, x, y, tight = false) {
+      const chars = [...text];
+      const fontSize = tight ? 24 : 28;
+      const step = tight ? 26 : 30;
+      chars.forEach((char, index) => {
+        const el = createSvgEl('text', {
+          x, y: y + index * step, 'text-anchor': 'middle', 'font-size': fontSize,
+          'font-family': '"Noto Serif SC", "Source Han Serif SC", "STSong", serif',
+          fill: '#6b3f2c', class: 'label-char'
+        });
+        el.textContent = char;
+        group.appendChild(el);
+      });
+    }
+
+    function buildNode(item) {
+      const info = dynastyInfo[item.name];
+      const g = createSvgEl('g', {
+        class: 'dynasty-node', tabindex: '0', role: 'button', 'aria-label': `${item.name}代表纹样`
+      });
+
+      const hitArea = createSvgEl('circle', {
+        cx: item.x, cy: item.y, r: '38', fill: 'rgba(0,0,0,0.001)', 'pointer-events': 'all'
+      });
+
+      const stemY2 = item.dir === 'up' ? item.y - 12 : item.y + 12;
+      const stemY1 = item.dir === 'up' ? stemY2 - item.stem : stemY2 + item.stem;
+      const stem = createSvgEl('line', {
+        x1: item.x, y1: stemY1, x2: item.x, y2: stemY2,
+        stroke: 'rgba(124,81,61,0.55)', 'stroke-width': '2', class: 'stem'
+      });
+
+      const labelGroup = createSvgEl('g');
+      const labelX = item.x + (item.labelX || 0);
+      const labelStartY = item.dir === 'up'
+        ? stemY1 - 16 - ([...item.name].length - 1) * (item.labelClass === 'tight' ? 26 : 30)
+        : stemY1 + 34;
+      addVerticalLabel(labelGroup, item.name, labelX, labelStartY, item.labelClass === 'tight');
+
+      const dot = createSvgEl('circle', {
+        cx: item.x, cy: item.y, r: '13', fill: '#fffdf9', stroke: '#7f4b33', 'stroke-width': '5', class: 'dot'
+      });
+      const dotCore = createSvgEl('circle', {
+        cx: item.x, cy: item.y, r: '10.5', fill: '#fffdf9', class: 'dot-core'
+      });
+
+      g.appendChild(hitArea);
+      g.appendChild(stem);
+      g.appendChild(labelGroup);
+      g.appendChild(dot);
+      g.appendChild(dotCore);
+
+      const activate = () => setActiveDynasty(item.name);
+
+      g.addEventListener('mouseenter', activate);
+      g.addEventListener('focus', activate);
+      g.addEventListener('click', activate);
+      g.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          activate();
+        }
+      });
+
+      nodesLayer.appendChild(g);
+      nodeMap.set(item.name, { group: g });
+    }
+
+    function renderCurve() {
+      path.setAttribute('d', catmullRomToBezier(curvePoints));
+    }
+
+    function updateInfoPanel(name) {
+      const info = dynastyInfo[name];
+      infoTitle.textContent = name;
+      infoFeature.textContent = info.feature;
+      infoForm.textContent = info.form;
+      infoEvolution.textContent = info.evolution;
+      renderCarousel(name, 0, false);
+      infoScroll.scrollTop = 0;
+      startAutoplay();
+    }
+
+    function setActiveDynasty(name) {
+      activeName = name;
+      nodeMap.forEach(({ group }, key) => {
+        const isActive = key === name;
+        group.classList.toggle('is-active', isActive);
+      });
+      updateInfoPanel(name);
+    }
+
+    function initPanelInteraction() {
+      carouselPrev.addEventListener('click', () => {
+        stopAutoplay();
+        renderCarousel(activeName, activeImageIndex - 1, true);
+      });
+
+      carouselNext.addEventListener('click', () => {
+        stopAutoplay();
+        renderCarousel(activeName, activeImageIndex + 1, true);
+      });
+
+      carouselDots.addEventListener('mouseenter', stopAutoplay);
+      carouselDots.addEventListener('mouseleave', startAutoplay);
+      infoImage.addEventListener('mouseenter', stopAutoplay);
+      infoImage.addEventListener('mouseleave', startAutoplay);
+
+      infoScroll.addEventListener('scroll', () => {
+        infoPanel.classList.add('is-scrolling');
+        window.clearTimeout(scrollTimer);
+        scrollTimer = window.setTimeout(() => {
+          infoPanel.classList.remove('is-scrolling');
+        }, 500);
+      }, { passive: true });
+    }
+
+    function renderAll() {
+      buildDecor();
+      renderCurve();
+      dynasties.forEach(buildNode);
+      initZoomControls();
+      initPanelInteraction();
+      setActiveDynasty(activeName);
+    }
+
+    renderAll();
+  </script>
+
+  {% endblock %}

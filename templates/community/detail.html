@@ -1,0 +1,696 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}帖子详情{% endblock %}
+
+{% block extra_css %}
+<style>
+  .community-detail-page {
+    background: #faf6f0;
+    min-height: calc(100vh - 120px);
+    padding: 96px 20px 40px;
+  }
+
+  .community-detail-container {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    position: sticky;
+    top: 84px;
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    color: #9c7a5b;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 999px;
+    background: rgba(255, 253, 249, 0.95);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(6px);
+  }
+
+  .post-card,
+  .comment-card {
+    background: #fff;
+    padding: 24px;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .post-card {
+    margin-bottom: 20px;
+  }
+
+  .post-title {
+    font-size: 28px;
+    color: #2f241b;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .post-author {
+    color: #9c7a5b;
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+
+  .post-time {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 14px;
+  }
+
+  .post-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .post-tag {
+    background: #f5efe9;
+    color: #9c7a5b;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+  }
+
+  .post-content {
+    line-height: 1.9;
+    color: #4b3b2f;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 20px;
+  }
+
+  .post-media {
+    margin-bottom: 20px;
+  }
+
+  .post-media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .post-image {
+    width: 100%;
+    display: block;
+    border-radius: 16px;
+    background: #f5f5f5;
+    object-fit: cover;
+  }
+
+  .action-bar {
+    display: flex;
+    gap: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+  }
+
+  .action-item {
+    cursor: pointer;
+    color: #666;
+    user-select: none;
+    transition: color 0.2s;
+  }
+
+  .action-item.active {
+    color: #9c7a5b;
+    font-weight: 600;
+  }
+
+  .action-item.disabled {
+    color: #bbb;
+    cursor: not-allowed;
+  }
+
+  .comment-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .comment-title {
+    font-size: 20px;
+    color: #2f241b;
+  }
+
+  .comment-tip {
+    font-size: 13px;
+    color: #9c7a5b;
+    background: #f8f3ee;
+    padding: 6px 10px;
+    border-radius: 999px;
+  }
+
+  .comment-list {
+    margin-bottom: 18px;
+  }
+
+  .comment-item {
+    background: #f8f3ee;
+    padding: 14px 16px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+  }
+
+  .comment-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #8a6d55;
+  }
+
+  .comment-author {
+    font-weight: 600;
+    color: #6f533d;
+  }
+
+  .comment-time {
+    color: #999;
+    white-space: nowrap;
+  }
+
+  .comment-content {
+    color: #4b3b2f;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .comment-empty,
+  .loading-box,
+  .error-box {
+    text-align: center;
+    padding: 28px 12px;
+    color: #999;
+    background: #fff;
+    border-radius: 16px;
+  }
+
+  .comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .comment-textarea {
+    width: 100%;
+    min-height: 110px;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    resize: vertical;
+    background: #fffdf9;
+  }
+
+  .comment-textarea:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
+  }
+
+  .comment-submit {
+    align-self: flex-end;
+    padding: 10px 22px;
+    background: #9c7a5b;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 15px;
+  }
+
+  .comment-submit:disabled {
+    background: #c8b4a0;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    .community-detail-page {
+      padding: 88px 14px 30px;
+    }
+
+    .post-card,
+    .comment-card {
+      padding: 18px;
+      border-radius: 16px;
+    }
+
+    .back-link {
+      top: 76px;
+      font-size: 14px;
+    }
+
+    .post-title {
+      font-size: 22px;
+    }
+
+    .comment-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="community-detail-page">
+  <div class="community-detail-container">
+    <div class="back-link" onclick="goBackToList()">← 返回灵感漫游首页</div>
+
+    <div id="postDetailBox" class="loading-box">正在加载帖子详情…</div>
+
+    <div class="comment-card">
+      <div class="comment-header-bar">
+        <h3 class="comment-title">评论区</h3>
+        <div id="commentStatusTip" class="comment-tip">正在检查评论状态…</div>
+      </div>
+
+      <div id="commentList" class="comment-list">
+        <div class="loading-box">正在加载评论…</div>
+      </div>
+
+      <div class="comment-form">
+        <textarea
+          id="commentContent"
+          class="comment-textarea"
+          placeholder="写下你的评论…（Ctrl + Enter 可快速提交）"
+        ></textarea>
+        <button id="submitCommentBtn" class="comment-submit" type="button">
+          发表评论
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const POST_ID = "{{ post_id }}";
+  const LIST_PAGE_URL = "/community/posts/";
+
+  let currentPost = null;
+  let replyParentId = null;
+  let replyToUserId = null;
+
+  function getCookie(name) {
+    const cookies = document.cookie ? document.cookie.split("; ") : [];
+    for (let i = 0; i < cookies.length; i++) {
+      const parts = cookies[i].split("=");
+      const key = decodeURIComponent(parts[0]);
+      const value = parts.slice(1).join("=");
+      if (key === name) {
+        return decodeURIComponent(value);
+      }
+    }
+    return null;
+  }
+
+  function goBackToList() {
+    const from = sessionStorage.getItem("community_post_list_return_url");
+    window.location.href = from || LIST_PAGE_URL;
+  }
+
+  function formatTime(timeStr) {
+    if (!timeStr) return "";
+    const date = new Date(timeStr);
+    return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("zh-CN");
+  }
+
+  function escapeHtml(text) {
+    if (text === null || text === undefined) return "";
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  async function apiRequest(url, method = "GET", data = null) {
+    const token = localStorage.getItem("token");
+    const csrftoken = getCookie("csrftoken");
+    const headers = {};
+
+    if (data) {
+      headers["Content-Type"] = "application/json";
+    }
+    if (token) {
+      headers["Authorization"] = `Token ${token}`;
+    }
+    if (csrftoken) {
+      headers["X-CSRFToken"] = csrftoken;
+    }
+
+    const response = await fetch(url, {
+      method,
+      credentials: "include",
+      headers,
+      body: data ? JSON.stringify(data) : undefined
+    });
+
+    const result = await response.json().catch(() => ({}));
+    return { ok: response.ok, status: response.status, data: result };
+  }
+
+  function updateCommentFormState(post) {
+    const tipEl = document.getElementById("commentStatusTip");
+    const textarea = document.getElementById("commentContent");
+    const btn = document.getElementById("submitCommentBtn");
+    const isClosed = post && post.comment_status === "closed";
+
+    if (isClosed) {
+      tipEl.textContent = "当前帖子已关闭评论";
+      textarea.disabled = true;
+      textarea.placeholder = "当前帖子已关闭评论";
+      btn.disabled = true;
+      return;
+    }
+
+    tipEl.textContent = "文明交流，友善评论";
+    textarea.disabled = false;
+    textarea.placeholder = "写下你的评论…（Ctrl/⌘ + Enter 可快速提交）";
+    btn.disabled = false;
+  }
+
+  function startReply(commentId, username, userId = null) {
+    replyParentId = commentId;
+    replyToUserId = userId;
+
+    const textarea = document.getElementById("commentContent");
+    textarea.placeholder = `回复 ${username}：`;
+    textarea.focus();
+  }
+
+  function clearReplyState() {
+    replyParentId = null;
+    replyToUserId = null;
+
+    const textarea = document.getElementById("commentContent");
+    textarea.placeholder = "写下你的评论…（Ctrl/⌘ + Enter 可快速提交）";
+  }
+
+  async function toggleCommentLike(commentId) {
+    const result = await apiRequest(`/api/community/comments/${commentId}/like/`, "POST");
+
+    if (result.status === 401 || result.status === 403) {
+      alert("请先登录后再点赞");
+      window.location.href = "/login/";
+      return;
+    }
+
+    if (!result.ok || result.data.code !== 200) {
+      alert(result.data.message || "评论点赞失败");
+      return;
+    }
+
+    loadComments();
+  }
+
+  function renderPostDetail(post) {
+    const tags = [post.post_type, post.visibility, post.comment_status].filter(Boolean);
+    const tagsHtml = tags
+      .map(tag => `<span class="post-tag">${escapeHtml(tag)}</span>`)
+      .join("");
+
+    const mediaList = Array.isArray(post.media) ? post.media : [];
+    const imageList = mediaList.filter(item => item.media_type === "image" && (item.file_url || item.file));
+
+    const mediaHtml = imageList.length
+      ? `
+        <div class="post-media">
+          <div class="post-media-grid">
+            ${imageList.map(item => `
+              <img
+                class="post-image"
+                src="${escapeHtml(item.file_url || item.file || "")}"
+                alt="${escapeHtml(post.alt_text || post.title || "帖子图片")}"
+              />
+            `).join("")}
+          </div>
+        </div>
+      `
+      : "";
+
+    return `
+      <div class="post-card">
+        <h1 class="post-title">${escapeHtml(post.title || "")}</h1>
+        <div class="post-author">发布者：${escapeHtml(post.author_name || "匿名用户")}</div>
+        <div class="post-time">
+          ${formatTime(post.created_at)} · 浏览 ${post.view_count || 0}
+        </div>
+        <div class="post-tags">${tagsHtml}</div>
+        <div class="post-content">${escapeHtml(post.content || "")}</div>
+        ${mediaHtml}
+        <div class="action-bar">
+          <div id="likeBtn" class="action-item ${post.is_liked ? "active" : ""}">👍 ${post.like_count || 0}</div>
+          <div id="favoriteBtn" class="action-item ${post.is_favorited ? "active" : ""}">
+            ⭐ ${post.favorite_count || 0}
+          </div>
+          <div class="action-item">💬 ${post.comment_count || 0}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderComments(comments) {
+    const commentListEl = document.getElementById("commentList");
+
+    if (!Array.isArray(comments) || comments.length === 0) {
+      commentListEl.innerHTML = `<div class="comment-empty">暂无评论，来抢个沙发吧～</div>`;
+      return;
+    }
+
+    commentListEl.innerHTML = comments.map(comment => `
+      <div class="comment-item">
+        <div class="comment-header">
+          <span class="comment-author">${escapeHtml(comment.username || "匿名用户")}</span>
+          <span class="comment-time">${formatTime(comment.created_at)}</span>
+        </div>
+        <div class="comment-content">${escapeHtml(comment.content || "")}</div>
+
+        <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;">
+          <span class="action-item ${comment.is_liked ? "active" : ""}"
+                onclick="toggleCommentLike(${comment.id})">
+            👍 ${comment.like_count || 0}
+          </span>
+          <span class="action-item"
+                onclick="startReply(${comment.id}, '${escapeHtml(comment.username || "匿名用户")}', ${comment.user || 'null'})">
+            回复
+          </span>
+        </div>
+
+        ${(comment.replies && comment.replies.length) ? `
+          <div style="margin-top:12px;padding-left:14px;border-left:2px solid #eadfd2;">
+            ${comment.replies.map(reply => `
+              <div class="comment-item" style="margin-bottom:8px;">
+                <div class="comment-header">
+                  <span class="comment-author">
+                    ${escapeHtml(reply.username || "匿名用户")}
+                    ${reply.reply_to_username ? ` 回复 ${escapeHtml(reply.reply_to_username)}` : ""}
+                  </span>
+                  <span class="comment-time">${formatTime(reply.created_at)}</span>
+                </div>
+                <div class="comment-content">${escapeHtml(reply.content || "")}</div>
+                <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;">
+                  <span class="action-item ${reply.is_liked ? "active" : ""}"
+                        onclick="toggleCommentLike(${reply.id})">
+                    👍 ${reply.like_count || 0}
+                  </span>
+                  <span class="action-item"
+                        onclick="startReply(${comment.id}, '${escapeHtml(reply.username || "匿名用户")}', ${reply.user || 'null'})">
+                    回复
+                  </span>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        ` : ""}
+      </div>
+    `).join("");
+  }
+
+  async function loadPostDetail() {
+    const detailBox = document.getElementById("postDetailBox");
+    detailBox.className = "loading-box";
+    detailBox.innerHTML = "正在加载帖子详情…";
+
+    const result = await apiRequest(`/api/community/posts/${POST_ID}/`);
+
+    if (!result.ok || result.data.code !== 200 || !result.data.data) {
+      detailBox.className = "error-box";
+      detailBox.innerHTML = "帖子详情加载失败，请稍后重试。";
+      return;
+    }
+
+    currentPost = result.data.data;
+    detailBox.className = "";
+    detailBox.innerHTML = renderPostDetail(currentPost);
+    updateCommentFormState(currentPost);
+    bindPostActions();
+  }
+
+  async function loadComments() {
+    const result = await apiRequest(`/api/community/posts/${POST_ID}/comments/`);
+
+    if (!result.ok || result.data.code !== 200) {
+      document.getElementById("commentList").innerHTML =
+        `<div class="error-box">评论加载失败，请稍后重试。</div>`;
+      return;
+    }
+
+    renderComments(result.data.results || []);
+  }
+
+  function bindPostActions() {
+    const likeBtn = document.getElementById("likeBtn");
+    const favoriteBtn = document.getElementById("favoriteBtn");
+
+    if (likeBtn) {
+      likeBtn.addEventListener("click", async function () {
+        const result = await apiRequest(`/api/community/posts/${POST_ID}/like/`, "POST");
+
+        if (result.status === 401 || result.status === 403) {
+          alert("请先登录后再点赞");
+          window.location.href = "/login/";
+          return;
+        }
+
+        if (!result.ok || result.data.code !== 200) {
+          alert(result.data.message || "点赞失败，请稍后重试");
+          return;
+        }
+
+        const liked = !!result.data.liked;
+        const likeCount = result.data.like_count || 0;
+
+        likeBtn.classList.toggle("active", liked);
+        likeBtn.textContent = `👍 ${likeCount}`;
+
+        if (currentPost) {
+          currentPost.is_liked = liked;
+          currentPost.like_count = likeCount;
+        }
+      });
+    }
+
+    if (favoriteBtn) {
+      favoriteBtn.addEventListener("click", async function () {
+        const result = await apiRequest(`/api/community/posts/${POST_ID}/favorite/`, "POST");
+
+        if (result.status === 401 || result.status === 403) {
+          alert("请先登录后再收藏");
+          window.location.href = "/login/";
+          return;
+        }
+
+        if (!result.ok || result.data.code !== 200) {
+          alert(result.data.message || "收藏失败，请稍后重试");
+          return;
+        }
+
+        const favorited = !!result.data.favorited;
+        const favoriteCount = result.data.favorite_count || 0;
+
+        favoriteBtn.classList.toggle("active", favorited);
+        favoriteBtn.textContent = `⭐ ${favoriteCount}`;
+
+        if (currentPost) {
+          currentPost.is_favorited = favorited;
+          currentPost.favorite_count = favoriteCount;
+        }
+      });
+    }
+  }
+
+  async function submitComment() {
+    const btn = document.getElementById("submitCommentBtn");
+    const textarea = document.getElementById("commentContent");
+    const content = textarea.value.trim();
+
+    if (!currentPost) {
+      alert("帖子信息尚未加载完成");
+      return;
+    }
+
+    if (currentPost.comment_status === "closed") {
+      alert("当前帖子已关闭评论");
+      return;
+    }
+
+    if (!content) {
+      alert("评论内容不能为空");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "提交中...";
+
+    try {
+      const result = await apiRequest(`/api/community/posts/${POST_ID}/comment/`, "POST", {
+        content,
+        parent: replyParentId,
+        reply_to_user: replyToUserId
+      });
+
+      if (result.status === 401 || result.status === 403) {
+        alert("请先登录后再评论");
+        window.location.href = "/login/";
+        return;
+      }
+
+      if (!result.ok || result.data.code !== 201) {
+        const errorMessage =
+          result.data.message ||
+          (result.data.errors && JSON.stringify(result.data.errors)) ||
+          "评论失败，请稍后重试";
+        alert(errorMessage);
+        return;
+      }
+
+      textarea.value = "";
+      clearReplyState();
+      await Promise.all([loadComments(), loadPostDetail()]);
+      alert("评论成功");
+    } catch (error) {
+      console.error("评论提交异常：", error);
+      alert("评论失败，请稍后重试");
+    } finally {
+      if (currentPost && currentPost.comment_status !== "closed") {
+        btn.disabled = false;
+      }
+      btn.textContent = "发表评论";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const textarea = document.getElementById("commentContent");
+    const submitBtn = document.getElementById("submitCommentBtn");
+
+    submitBtn.addEventListener("click", submitComment);
+    textarea.addEventListener("keydown", function (event) {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        submitComment();
+      }
+    });
+
+    loadPostDetail();
+    loadComments();
+  });
+</script>
+{% endblock %}

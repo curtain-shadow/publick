@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}中华传统纹样数字库{% endblock %}</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --dh-dark: #2E1E16;
+            --dh-gold: #F0A500;
+        }
+
+        body {
+            background: #EAD7BB;
+            color: #4A2A1E;
+            font-family: 'Noto Serif SC', 'Times New Roman', serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            opacity: 0.08;
+            z-index: 9999;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #D4C4A8; }
+        ::-webkit-scrollbar-thumb { background: #C23B22; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #A63A2E; }
+
+        /* ---------- 导航栏 ---------- */
+        .navbar {
+            background: rgba(234, 215, 187, 0.92);
+            backdrop-filter: blur(12px);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.4s ease;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .navbar.scrolled {
+            background: rgba(220, 195, 150, 0.96);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom-color: #C23B22;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo:hover { transform: scale(1.02); }
+
+        .logo i {
+            color: #F0A500;
+            font-size: 2rem;
+            filter: drop-shadow(0 0 2px rgba(240,165,0,0.4));
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #C23B22, #F0A500);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            margin: 0 1.2rem;
+            text-decoration: none;
+            color: #4A2A1E;
+            font-weight: 500;
+            transition: 0.3s;
+            position: relative;
+            padding-bottom: 5px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #C23B22, #F0A500);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after { width: 100%; }
+
+        .nav-links a:hover,
+        .nav-links a.active { color: #C23B22; }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.05);
+            padding: 5px 5px 5px 15px;
+            border-radius: 40px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .search-bar:focus-within {
+            border-color: #C23B22;
+            box-shadow: 0 0 0 2px rgba(194,59,34,0.2);
+            background: rgba(255,245,235,0.9);
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: #4A2A1E;
+            outline: none;
+            width: 180px;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(74,42,30,0.6);
+        }
+
+        .search-bar button {
+            background: #C23B22;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .search-bar button:hover {
+            background: #A63A2E;
+            transform: scale(1.02);
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu i {
+            font-size: 2rem;
+            color: #C23B22;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .user-menu i:hover {
+            color: #F0A500;
+            transform: rotate(5deg);
+        }
+
+        .user-avatar-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            background-color: #C23B22;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-family: inherit;
+        }
+
+        .user-avatar-text:hover {
+            background-color: #F0A500;
+            color: #4A2A1E;
+            transform: rotate(5deg);
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            background: #FDF3E0;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            overflow: hidden;
+            min-width: 140px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid #D4A373;
+            z-index: 1100;
+        }
+
+        .user-dropdown a {
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #4A2A1E;
+            transition: 0.2s;
+        }
+
+        .user-dropdown a:hover {
+            background: #C23B22;
+            color: white;
+        }
+
+        #guestLoginBtn:hover {
+            background-color: #A63A2E;
+            color: white;
+        }
+
+        /* ---------- 主内容区域 ---------- */
+        main {
+            min-height: calc(100vh - 180px);
+        }
+
+        /* ---------- 页脚 ---------- */
+        .footer {
+            background: #D4A373;
+            color: #4A2A1E;
+            text-align: center;
+            padding: 45px 0;
+            margin-top: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: "✽ ✿ ❀ ✤";
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 30px;
+            opacity: 0.2;
+            letter-spacing: 20px;
+            pointer-events: none;
+        }
+
+        @media (max-width: 1024px) {
+            .nav-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .nav-links {
+                justify-content: center;
+            }
+
+            .nav-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .search-bar input {
+                width: 140px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container,
+            .nav-container {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .nav-links a {
+                margin: 0 0.7rem;
+            }
+
+            .logo span {
+                font-size: 1.25rem;
+            }
+
+            .search-bar {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .search-bar input {
+                width: 100%;
+                min-width: 0;
+            }
+        }
+    </style>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+        }
+    }
+    </script>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-palette"></i>
+                <span>纹样数字库</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="/" class="{% if request.path == '/' %}active{% endif %}">首页</a>
+                <a href="/design/" class="{% if '/design' in request.path %}active{% endif %}">设计工具</a>
+                <a href="/community/posts/" class="{% if '/community/' in request.path %}active{% endif %}">灵感漫游</a>
+                <a href="/dynasty-time/" id="timelineBtn">纹样演变</a>
+            </div>
+
+            <div class="nav-actions">
+                <div class="user-menu" id="userMenu">
+                    {% if user.is_authenticated %}
+                        <i class="fas fa-user-circle" style="display: none;"></i>
+                        <span class="user-avatar-text">{{ user.username|slice:":1"|upper }}</span>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="/my-collections/">我的收藏</a>
+                            <a href="/my-designs/">我的设计</a>
+                            <form id="logoutForm" method="post" action="{% url 'logout' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background: none; border: none; color: #4A2A1E; cursor: pointer; padding: 10px 20px; text-decoration: none; display: block; width: 100%; text-align: left; font-family: inherit; font-size: 1rem;">
+                                    退出登录
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <i class="fas fa-user-circle" style="display: none;"></i>
+                        <span class="user-avatar-text" id="guestLoginBtn">游</span>
+                        <div class="user-dropdown" id="userDropdown" style="display: none;"></div>
+                    {% endif %}
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="搜索纹样...">
+                    <button id="searchBtn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 中华传统纹样数字库 | 传承文化之美</p>
+        </div>
+    </footer>
+
+    <script>
+        window.SERVER_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
+
+        if (!window.SERVER_AUTHENTICATED) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('email');
+        }
+    </script>
+
+    <script src="/static/js/main.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

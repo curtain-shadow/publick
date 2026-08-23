@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>云纹雅集 · 登录</title>
+    <style>
+        /* ========== 样式保持不变 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Noto Serif SC', '宋体', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #faf7f2 0%, #f0ebe1 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600' opacity='0.08'%3E%3Cpath fill='none' stroke='%238b7355' stroke-width='2' d='M200,300 Q220,260 260,280 Q300,300 320,270 Q340,240 380,250 Q420,260 400,300 Q380,340 340,330 Q300,320 280,350 Q260,380 220,360 Q180,340 200,300Z'/%3E%3Cpath fill='none' stroke='%238b7355' stroke-width='1.5' d='M500,150 Q530,120 570,140 Q610,160 630,130 Q650,100 680,120 Q710,140 690,170 Q670,200 640,190 Q610,180 590,210 Q570,240 540,220 Q510,200 500,150Z'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 300px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 245, 0.4);
+            backdrop-filter: blur(2px);
+            border-radius: 48px 24px 48px 24px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,245,0.6);
+            width: 100%;
+            max-width: 440px;
+            padding: 2.5rem 2rem 3rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(180, 150, 110, 0.3);
+        }
+
+        .seal-mark {
+            text-align: center;
+            margin-bottom: 1.2rem;
+        }
+        .seal-mark span {
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23b87c4f' d='M50,10 L65,35 L90,40 L70,60 L75,85 L50,72 L25,85 L30,60 L10,40 L35,35 Z' opacity='0.7'/%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+            opacity: 0.6;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 500;
+            letter-spacing: 4px;
+            color: #5a3e2b;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        h2:after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 2px;
+            background: #c7a87b;
+            margin: 0.8rem auto 0;
+            border-radius: 2px;
+        }
+        .sub {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #9b7a5c;
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 1.6rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #6a4e34;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: #fffef7;
+            border: 1px solid #e2d4c2;
+            border-radius: 32px;
+            outline: none;
+            transition: all 0.25s;
+            color: #3e2a1f;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        input:focus {
+            border-color: #c7a46b;
+            box-shadow: 0 0 0 3px rgba(199, 164, 107, 0.2);
+            background: #ffffff;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 3px;
+            background: #b36b3c;
+            color: #fffcf5;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 0.8rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        button:hover {
+            background: #9b5630;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(150, 80, 40, 0.2);
+        }
+
+        button:disabled {
+            background: #c9a87c;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error {
+            background: #fff2ea;
+            border-left: 4px solid #c75c3c;
+            padding: 0.7rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #a44525;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 0.7rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #2e7d32;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+        }
+
+        .footer-links a {
+            color: #8d6b48;
+            text-decoration: none;
+            transition: 0.2s;
+            border-bottom: 1px dotted transparent;
+            cursor: pointer;
+        }
+
+        .footer-links a:hover {
+            color: #b36b3c;
+            border-bottom-color: #b36b3c;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: rgba(255, 255, 245, 0.98);
+            border-radius: 32px 16px 32px 16px;
+            max-width: 450px;
+            width: 90%;
+            padding: 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(180, 150, 110, 0.3);
+            position: relative;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: #5a3e2b;
+            letter-spacing: 3px;
+        }
+
+        .modal-header p {
+            font-size: 0.75rem;
+            color: #9b7a5c;
+            margin-top: 0.5rem;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #9b7a5c;
+            transition: 0.2s;
+        }
+
+        .close-modal:hover {
+            color: #b36b3c;
+        }
+
+        .code-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .code-row input {
+            flex: 1;
+        }
+
+        .code-row button {
+            flex: 0 0 110px;
+            margin-top: 0;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            padding: 0 10px;
+        }
+
+        .modal-message {
+            margin-bottom: 1rem;
+            padding: 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-align: center;
+            display: none;
+        }
+
+        .modal-message.error {
+            display: block;
+            background: #fff2ea;
+            color: #a44525;
+        }
+
+        .modal-message.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        @media (max-width: 500px) {
+            .login-card {
+                padding: 2rem 1.5rem;
+            }
+            h2 {
+                font-size: 1.6rem;
+            }
+            .code-row {
+                flex-direction: column;
+            }
+            .code-row button {
+                flex: auto;
+                padding: 10px;
+            }
+        }
+
+        .login-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .seal-stamp {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.3) rotate(-15deg);
+            transform-origin: center center;
+            animation: stampIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .seal-stamp::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(200, 60, 40, 0.15), transparent 70%);
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .seal-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #b33a2c;
+            border-radius: 50%;
+            color: #b33a2c;
+            font-family: 'Noto Serif SC', '楷体', 'KaiTi', serif;
+            font-weight: bold;
+            transform: rotate(-10deg);
+            background: transparent;
+            box-shadow: inset 0 0 0 1px rgba(179, 58, 44, 0.3);
+        }
+
+        .seal-content::after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 1px solid rgba(179, 58, 44, 0.4);
+            border-radius: 50%;
+        }
+
+        .seal-char {
+            font-size: 1.8rem;
+            line-height: 1.2;
+            letter-spacing: 4px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .seal-sub {
+            font-size: 0.6rem;
+            opacity: 0.8;
+            letter-spacing: 2px;
+        }
+
+        @keyframes stampIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) rotate(-25deg) translateY(30px);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.1) rotate(-8deg) translateY(-5px);
+            }
+            80% {
+                transform: scale(0.95) rotate(-11deg) translateY(2px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(-10deg) translateY(0);
+            }
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: auto;
+            opacity: 0.9;
+        }
+
+        .login-card {
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="particle-canvas"></canvas>
+    <div class="login-card">
+        <div class="seal-mark">
+            <span></span>
+        </div>
+        <h2>云纹雅集</h2>
+        <div class="sub">· 祥瑞入藏 ·</div>
+
+        <div id="loginError" class="error" style="display: none;"></div>
+
+        <form id="loginForm" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_username">用户名 / 邮箱</label>
+                <input type="text" name="username" id="username" placeholder="请输入用户名/邮箱" required>
+            </div>
+            <div class="form-group">
+                <label for="id_password">密语</label>
+                <input type="password" name="password" id="password" placeholder="请输入密码" required>
+            </div>
+            <button type="submit">登 入 雅 集</button>
+        </form>
+
+        <div class="footer-links">
+            <a id="forgotPwdBtn" style="cursor: pointer;">忘记密码？</a>
+            <a href="/">访客浏览</a>
+            <a href="/register">注册新号</a>
+        </div>
+    </div>
+
+    <div id="resetModal" class="modal-overlay">
+        <div class="modal-container">
+            <span class="close-modal" id="closeModalBtn">&times;</span>
+            <div class="modal-header">
+                <h3>重置密码</h3>
+                <p>验证身份后，可设置新密码</p>
+            </div>
+
+            <div id="modalMsg" class="modal-message"></div>
+
+            <form id="resetForm">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="resetUsername" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label>注册邮箱</label>
+                    <input type="email" id="resetEmail" placeholder="请输入注册邮箱" required>
+                </div>
+                <div class="form-group">
+                    <label>验证码</label>
+                    <div class="code-row">
+                        <input type="text" id="verifyCode" placeholder="6位验证码" maxlength="6" required>
+                        <button type="button" id="sendCodeBtn">获取验证码</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>新密码</label>
+                    <input type="password" id="newPassword" placeholder="至少6位" required>
+                </div>
+                <div class="form-group">
+                    <label>确认新密码</label>
+                    <input type="password" id="confirmPassword" placeholder="请再次输入" required>
+                </div>
+                <button type="submit" id="resetSubmitBtn">重置密码</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/auth';
+        
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const forgotPwdBtn = document.getElementById('forgotPwdBtn');
+        const resetModal = document.getElementById('resetModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const resetSubmitBtn = document.getElementById('resetSubmitBtn');
+        const modalMsg = document.getElementById('modalMsg');
+        
+        const loginCard = document.querySelector('.login-card');
+
+        let countdownTimer = null;
+        let currentEmail = '';
+
+        console.log('loginForm:', loginForm);
+        console.log('forgotPwdBtn:', forgotPwdBtn);
+        console.log('resetModal:', resetModal);
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                const submitBtn = loginForm.querySelector('button[type="submit"]');
+
+                if (!username || !password) {
+                    showLoginError('请填写用户名和密码');
+                    return;
+                }
+                
+                loginError.style.display = 'none';
+                
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = '登入中...';
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch(`${API_BASE}/login/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('username', data.username);
+                        localStorage.setItem('userId', data.user_id);
+                        
+                        const oldSeal = loginCard.querySelector('.seal-stamp');
+                        if (oldSeal) oldSeal.remove();
+                        
+                        const seal = document.createElement('div');
+                        seal.className = 'seal-stamp';
+                        seal.innerHTML = `
+                            <div class="seal-content">
+                                <span class="seal-char">云纹</span>
+                                <span class="seal-sub">雅集</span>
+                            </div>
+                        `;
+                        loginCard.appendChild(seal);
+                        
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1000);
+                    } else {
+                        showLoginError(data.error || '用户名或密码错误');
+                        submitBtn.textContent = originalText;
+                        submitBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('登录失败:', error);
+                    showLoginError('网络错误，请稍后重试');
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+        
+        function showLoginError(msg) {
+            loginError.textContent = `❀ ${msg} ❀`;
+            loginError.style.display = 'block';
+            setTimeout(() => {
+                loginError.style.display = 'none';
+            }, 3000);
+        }
+
+        if (forgotPwdBtn) {
+            forgotPwdBtn.addEventListener('click', () => {
+                resetModal.classList.add('active');
+                document.getElementById('resetForm').reset();
+                hideModalMessage();
+                sendCodeBtn.disabled = false;
+                sendCodeBtn.textContent = '获取验证码';
+                if (countdownTimer) clearInterval(countdownTimer);
+            });
+        }
+        
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                resetModal.classList.remove('active');
+            });
+        }
+        
+        if (resetModal) {
+            resetModal.addEventListener('click', (e) => {
+                if (e.target === resetModal) {
+                    resetModal.classList.remove('active');
+                }
+            });
+        }
+        
+        function showModalMessage(msg, type) {
+            modalMsg.textContent = msg;
+            modalMsg.className = `modal-message ${type}`;
+            modalMsg.style.display = 'block';
+        }
+        
+        function hideModalMessage() {
+            modalMsg.style.display = 'none';
+            modalMsg.className = 'modal-message';
+        }
+
+        if (sendCodeBtn) {
+            sendCodeBtn.addEventListener('click', async () => {
+                const username = document.getElementById('resetUsername').value.trim();
+                const email = document.getElementById('resetEmail').value.trim();
+                
+                if (!username) {
+                    showModalMessage('请输入用户名', 'error');
+                    return;
+                }
+                if (!email) {
+                    showModalMessage('请输入注册邮箱', 'error');
+                    return;
+                }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showModalMessage('请输入有效的邮箱地址', 'error');
+                    return;
+                }
+                
+                try {
+                    const checkResponse = await fetch(`${API_BASE}/check-user/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, email })
+                    });
+                    
+                    const checkData = await checkResponse.json();
+                    
+                    if (!checkResponse.ok) {
+                        showModalMessage(checkData.error || '用户名与邮箱不匹配', 'error');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('验证失败:', error);
+                    showModalMessage('验证失败，请稍后重试', 'error');
+                    return;
+                }
+                
+                currentEmail = email;
+                
+                try {
+                    sendCodeBtn.disabled = true;
+                    
+                    const response = await fetch(`${API_BASE}/send-verification-code/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        showModalMessage('验证码已发送到您的邮箱，请查收', 'success');
+                        
+                        let seconds = 60;
+                        sendCodeBtn.textContent = `${seconds}秒后重试`;
+                        countdownTimer = setInterval(() => {
+                            seconds--;
+                            if (seconds <= 0) {
+                                clearInterval(countdownTimer);
+                                sendCodeBtn.disabled = false;
+                                sendCodeBtn.textContent = '获取验证码';
+                            } else {
+                                sendCodeBtn.textContent = `${seconds}秒后重试`;
+                            }
+                        }, 1000);
+                    } else {
+                        showModalMessage(data.error || '发送失败，请稍后重试', 'error');
+                        sendCodeBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('发送验证码失败:', error);
+                    showModalMessage('网络错误，请稍后重试', 'error');
+                    sendCodeBtn.disabled = false;
+                }
+            });
+        }
+
+        if (resetSubmitBtn) {
+            resetSubmitBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('resetUsername').value.trim();
+                const email = document.getElementById('resetEmail').value.trim();
+                const code = document.getElementById('verifyCode').value.trim();
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (!username || !email || !code || !newPassword || !confirmPassword) {
+                    showModalMessage('请填写所有字段', 'error');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    showModalMessage('两次输入的密码不一致', 'error');
+                    return;
+                }
+                
+                if (newPassword.length < 6) {
+                    showModalMessage('密码长度不能少于6位', 'error');
+                    return;
+                }
+                
+                if (code.length !== 6) {
+                    showModalMessage('验证码为6位数字', 'error');
+                    return;
+                }
+                
+                try {
+                    resetSubmitBtn.disabled = true;
+                    resetSubmitBtn.textContent = '重置中...';
+                    
+                    const response = await fetch(`${API_BASE}/reset-password-with-code/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, code, new_password: newPassword })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        showModalMessage('密码重置成功，请使用新密码登录', 'success');
+
+                        setTimeout(() => {
+                            resetModal.classList.remove('active');
+                            document.getElementById('resetForm').reset();
+                            hideModalMessage();
+
+                            document.getElementById('username').value = username;
+                            document.getElementById('password').value = '';
+                        }, 1500);
+                    } else {
+                        showModalMessage(data.error || '重置失败，请重试', 'error');
+                        resetSubmitBtn.disabled = false;
+                        resetSubmitBtn.textContent = '重置密码';
+                    }
+                } catch (error) {
+                    console.error('重置密码失败:', error);
+                    showModalMessage('网络错误，请稍后重试', 'error');
+                    resetSubmitBtn.disabled = false;
+                    resetSubmitBtn.textContent = '重置密码';
+                }
+            });
+        }
+    </script>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+            
+            // 鼠标位置（用于平滑跟随）
+            let rawMouseX = width / 2;
+            let rawMouseY = height / 2;
+            let smoothMouseX = width / 2;
+            let smoothMouseY = height / 2;
+            
+            // 鼠标平滑系数（值越小越平滑，推荐 0.12 - 0.2）
+            const MOUSE_SMOOTHING = 0.12;
+            
+            const patterns = [];
+            
+            const PARTICLE_SIZE = 3.5;
+            const ATTRACTION_STRENGTH = 0.06;      // 略微提高吸引强度，响应更快
+            const RETURN_STRENGTH = 0.025;          // 略微提高回位速度
+            const ACTIVATION_DISTANCE = 180;
+            
+            const COLORS = {
+                cloud: '#D4A373',
+                fret: '#C23B22',
+                taotie: '#F0A500'
+            };
+            
+            const SHAPES = {
+                cloud: (() => {
+                    const points = [];
+                    for (let i = 0; i < 20; i++) {
+                        const t = i / 20 * Math.PI * 2.5;
+                        const r = 0.15 + t * 0.08;
+                        points.push([0.25 + Math.cos(t) * r, -0.1 + Math.sin(t) * r * 0.6]);
+                    }
+                    for (let i = 0; i < 16; i++) {
+                        const t = i / 16 * Math.PI * 2.2 + 0.5;
+                        const r = 0.1 + t * 0.06;
+                        points.push([-0.2 + Math.cos(t) * r, 0.15 + Math.sin(t) * r * 0.5]);
+                    }
+                    for (let i = 0; i < 12; i++) {
+                        const t = i / 11;
+                        points.push([-0.15 + t * 0.45, 0.05 + Math.sin(t * Math.PI) * 0.15]);
+                    }
+                    for (let i = 0; i < 8; i++) {
+                        points.push([0.1 + i * 0.05, 0.35]);
+                        points.push([-0.3 + i * 0.05, 0.25]);
+                    }
+                    return points;
+                })(),
+                
+                fret: (() => {
+                    const points = [];
+                    for (let i = 0; i < 15; i++) points.push([-0.7 + i * 0.1, -0.6]);
+                    for (let i = 0; i < 13; i++) points.push([0.7, -0.6 + i * 0.1]);
+                    for (let i = 0; i < 15; i++) points.push([0.7 - i * 0.1, 0.6]);
+                    for (let i = 0; i < 13; i++) points.push([-0.7, 0.6 - i * 0.1]);
+                    
+                    const fretPath = [
+                        [-0.5, -0.4], [-0.3, -0.4], [-0.3, -0.2], [-0.1, -0.2], [-0.1, -0.4], [0.1, -0.4], [0.1, -0.2], [0.3, -0.2], [0.3, -0.4], [0.5, -0.4],
+                        [0.5, 0.0], [0.3, 0.0], [0.3, 0.2], [0.1, 0.2], [0.1, 0.0], [-0.1, 0.0], [-0.1, 0.2], [-0.3, 0.2], [-0.3, 0.0], [-0.5, 0.0],
+                        [-0.5, 0.4], [-0.3, 0.4], [-0.3, 0.6], [-0.1, 0.6], [-0.1, 0.4], [0.1, 0.4], [0.1, 0.6], [0.3, 0.6], [0.3, 0.4], [0.5, 0.4]
+                    ];
+                    fretPath.forEach(p => points.push(p));
+                    
+                    for (let x = -0.5; x <= 0.5; x += 0.1) {
+                        for (let y = -0.4; y <= 0.4; y += 0.1) {
+                            if ((Math.abs(x * 10) % 2 === 0) && (Math.abs(y * 10) % 2 === 0)) {
+                                points.push([x, y]);
+                            }
+                        }
+                    }
+                    return points;
+                })(),
+                
+                taotie: (() => {
+                    const points = [];
+                    for (let i = 0; i < 12; i++) {
+                        const t = i / 11 * Math.PI * 2;
+                        points.push([-0.35 + Math.cos(t) * 0.15, -0.15 + Math.sin(t) * 0.1]);
+                    }
+                    for (let i = 0; i < 12; i++) {
+                        const t = i / 11 * Math.PI * 2;
+                        points.push([0.35 + Math.cos(t) * 0.15, -0.15 + Math.sin(t) * 0.1]);
+                    }
+                    points.push([-0.35, -0.15], [0.35, -0.15]);
+                    
+                    for (let i = 0; i < 10; i++) {
+                        const t = i / 9 * 0.8 - 0.4;
+                        points.push([-0.45 + i * 0.1, -0.35 + Math.sin(i * 0.5) * 0.05]);
+                    }
+                    for (let i = 0; i < 10; i++) {
+                        const t = i / 9 * 0.8 - 0.4;
+                        points.push([0.45 - i * 0.1, -0.35 + Math.sin(i * 0.5) * 0.05]);
+                    }
+                    
+                    for (let y = -0.1; y <= 0.15; y += 0.05) {
+                        points.push([0.0, y]);
+                    }
+                    points.push([-0.08, 0.1], [0.08, 0.1]);
+                    
+                    for (let x = -0.3; x <= 0.3; x += 0.05) {
+                        points.push([x, 0.25 + Math.abs(x) * 0.15]);
+                    }
+                    
+                    for (let i = 0; i < 8; i++) {
+                        points.push([-0.5 + i * 0.04, -0.55 + i * 0.06]);
+                        points.push([0.5 - i * 0.04, -0.55 + i * 0.06]);
+                    }
+                    
+                    for (let i = 0; i < 20; i++) {
+                        const t = i / 19 * Math.PI;
+                        points.push([-0.6 + Math.cos(t) * 0.25, 0.0 + Math.sin(t) * 0.35]);
+                    }
+                    for (let i = 0; i < 20; i++) {
+                        const t = i / 19 * Math.PI;
+                        points.push([0.6 - Math.cos(t) * 0.25, 0.0 + Math.sin(t) * 0.35]);
+                    }
+                    
+                    return points;
+                })(),
+            };
+
+            class Particle {
+                constructor(baseX, baseY, color) {
+                    this.baseX = baseX;
+                    this.baseY = baseY;
+                    this.x = baseX;
+                    this.y = baseY;
+                    this.vx = 0;
+                    this.vy = 0;
+                    this.color = color;
+                    this.size = PARTICLE_SIZE * (0.7 + Math.random() * 0.6);
+                }
+                
+                moveToward(targetX, targetY, strength) {
+                    const dx = targetX - this.x;
+                    const dy = targetY - this.y;
+                    this.vx = dx * strength;
+                    this.vy = dy * strength;
+                    this.x += this.vx;
+                    this.y += this.vy;
+                }
+                
+                returnHome(strength) {
+                    const dx = this.baseX - this.x;
+                    const dy = this.baseY - this.y;
+                    this.vx = dx * strength;
+                    this.vy = dy * strength;
+                    this.x += this.vx;
+                    this.y += this.vy;
+                }
+                
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.shadowColor = '#FFFFFF';
+                    ctx.shadowBlur = 12;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+            
+            class PatternGroup {
+                constructor(shapeName, centerX, centerY, scale) {
+                    this.shapeName = shapeName;
+                    this.centerX = centerX;
+                    this.centerY = centerY;
+                    this.scale = scale;
+                    this.particles = [];
+                    this.isAttracted = false;
+                    
+                    const shapePoints = SHAPES[shapeName] || SHAPES.cloud;
+                    const color = COLORS[shapeName] || '#C23B22';
+                    
+                    for (let i = 0; i < shapePoints.length; i++) {
+                        const [px, py] = shapePoints[i];
+                        const jitter = 0.05;
+                        const jitteredX = px + (Math.random() - 0.5) * jitter;
+                        const jitteredY = py + (Math.random() - 0.5) * jitter;
+                        
+                        const worldX = centerX + jitteredX * scale;
+                        const worldY = centerY + jitteredY * scale;
+                        
+                        this.particles.push(new Particle(worldX, worldY, color));
+                    }
+                }
+                
+                getCurrentCenter() {
+                    let sumX = 0, sumY = 0;
+                    const particles = this.particles;
+                    const len = particles.length;
+                    for (let i = 0; i < len; i++) {
+                        sumX += particles[i].x;
+                        sumY += particles[i].y;
+                    }
+                    return { x: sumX / len, y: sumY / len };
+                }
+                
+                update(isActive, mouseX, mouseY) {
+                    const particles = this.particles;
+                    const len = particles.length;
+                    
+                    if (isActive) {
+                        for (let i = 0; i < len; i++) {
+                            particles[i].moveToward(mouseX, mouseY, ATTRACTION_STRENGTH);
+                        }
+                        this.isAttracted = true;
+                    } else {
+                        for (let i = 0; i < len; i++) {
+                            particles[i].returnHome(RETURN_STRENGTH);
+                        }
+                        this.isAttracted = false;
+                    }
+                }
+                
+                draw() {
+                    const particles = this.particles;
+                    for (let i = 0; i < particles.length; i++) {
+                        particles[i].draw();
+                    }
+                }
+            }
+            
+            function initPatterns() {
+                const shapeKeys = ['cloud', 'fret', 'taotie'];
+                const cols = 4;
+                const rows = 2;
+                const marginX = width * 0.15;
+                const marginY = height * 0.15;
+                const spacingX = (width - 2 * marginX) / (cols - 1);
+                const spacingY = (height - 2 * marginY) / (rows - 1);
+                
+                for (let row = 0; row < rows; row++) {
+                    for (let col = 0; col < cols; col++) {
+                        const shapeName = shapeKeys[(row * cols + col) % shapeKeys.length];
+                        const x = marginX + col * spacingX;
+                        const y = marginY + row * spacingY;
+                        const scale = Math.min(width, height) * 0.12;
+                        
+                        patterns.push(new PatternGroup(shapeName, x, y, scale));
+                    }
+                }
+            }
+            
+            function findClosestPattern(mouseX, mouseY) {
+                let minDist = Infinity;
+                let closest = null;
+                const len = patterns.length;
+                
+                for (let i = 0; i < len; i++) {
+                    const pattern = patterns[i];
+                    const center = pattern.getCurrentCenter();
+                    const dx = center.x - mouseX;
+                    const dy = center.y - mouseY;
+                    const dist = dx * dx + dy * dy;  // 使用平方距离，避免开方
+                    
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = pattern;
+                    }
+                }
+                
+                return { pattern: closest, distance: Math.sqrt(minDist) };
+            }
+            
+            // ========== SVG 鹿 ==========
+            let deerImage = new Image();
+            deerImage.src = '/static/images/鹿.svg';
+            let deerLoaded = false;
+            deerImage.onload = () => {
+                deerLoaded = true;
+                console.log('🦌 SVG鹿已加载');
+            };
+            deerImage.onerror = () => {
+                console.warn('⚠️ SVG鹿加载失败，请检查路径 /static/images/鹿.svg');
+            };
+
+            let deerX = -200;
+            const DEER_Y_OFFSET = 0.55;
+            const DEER_SPEED = 2.0;
+            const DEER_WIDTH = 180;
+            const DEER_HEIGHT = 120;
+            const FLOAT_AMPLITUDE = 12;
+            const FLOAT_SPEED = 0.015;
+            
+            // 帧率控制（可选，让动画更平滑）
+            let lastTimestamp = 0;
+            let frameCount = 0;
+            
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                
+                // 平滑鼠标位置（消除卡顿感）
+                smoothMouseX += (rawMouseX - smoothMouseX) * MOUSE_SMOOTHING;
+                smoothMouseY += (rawMouseY - smoothMouseY) * MOUSE_SMOOTHING;
+                
+                // 绘制SVG鹿（带上下浮动）
+                if (deerLoaded) {
+                    deerX += DEER_SPEED;
+                    
+                    const baseY = height * DEER_Y_OFFSET - DEER_HEIGHT / 2;
+                    const floatOffset = Math.sin(Date.now() * FLOAT_SPEED) * FLOAT_AMPLITUDE;
+                    const deerY = baseY + floatOffset;
+                    
+                    if (deerX > width + DEER_WIDTH) {
+                        deerX = -DEER_WIDTH * 1.5;
+                    }
+                    
+                    ctx.drawImage(deerImage, deerX, deerY, DEER_WIDTH, DEER_HEIGHT);
+                }
+                
+                // 使用平滑后的鼠标位置
+                const currentMouseX = smoothMouseX;
+                const currentMouseY = smoothMouseY;
+                
+                // 找出最近的图案
+                const { pattern: closestPattern, distance } = findClosestPattern(currentMouseX, currentMouseY);
+                const isActiveOverall = distance < ACTIVATION_DISTANCE;
+                
+                // 批量更新所有图案
+                const len = patterns.length;
+                for (let i = 0; i < len; i++) {
+                    const pattern = patterns[i];
+                    const isActive = (pattern === closestPattern && isActiveOverall);
+                    pattern.update(isActive, currentMouseX, currentMouseY);
+                    pattern.draw();
+                }
+                
+                // 优化连线绘制：合并为单一路径
+                ctx.strokeStyle = 'rgba(194, 59, 34, 0.08)';
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                
+                for (let i = 0; i < len; i++) {
+                    const particles = patterns[i].particles;
+                    const particleLen = particles.length;
+                    for (let j = 0; j < particleLen - 1; j++) {
+                        ctx.moveTo(particles[j].x, particles[j].y);
+                        ctx.lineTo(particles[j + 1].x, particles[j + 1].y);
+                    }
+                }
+                ctx.stroke();
+                
+                requestAnimationFrame(animate);
+            }
+            
+            // 鼠标事件：记录原始位置
+            canvas.addEventListener('mousemove', (e) => {
+                rawMouseX = e.clientX;
+                rawMouseY = e.clientY;
+            });
+            
+            canvas.addEventListener('mouseleave', () => {
+                rawMouseX = -1000;
+                rawMouseY = -1000;
+            });
+            
+            window.addEventListener('resize', () => {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                
+                // 重置鼠标位置
+                rawMouseX = width / 2;
+                rawMouseY = height / 2;
+                smoothMouseX = width / 2;
+                smoothMouseY = height / 2;
+                
+                deerX = -DEER_WIDTH * 1.5;
+                
+                patterns.length = 0;
+                initPatterns();
+            });
+            
+            canvas.width = width;
+            canvas.height = height;
+            initPatterns();
+            animate();
+            
+            console.log('✨ 粒子动画已优化启动，鼠标跟随平滑度：' + MOUSE_SMOOTHING);
+        })();
+    </script>
+</body>
+</html>

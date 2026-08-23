@@ -1,0 +1,589 @@
+{% extends "base.html" %} {% load static %} {% block title %}纹样设计交流社区
+{%endblock %} {% block extra_css %}
+<style>
+  .community-page {
+    background: #faf6f0;
+    min-height: calc(100vh - 120px);
+    padding: 28px 0 40px;
+  }
+
+  .community-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .title-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 12px 0 22px;
+    position: relative;
+  }
+
+  .page-title {
+    text-align: center;
+    font-size: 30px;
+    margin: 0;
+    color: #3e2f23;
+    letter-spacing: 1px;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    margin-bottom: 22px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .create-btn,
+  .qa-btn {
+    width: 88px;
+    height: 88px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    font-size: 18px;
+    color: #2f241b;
+    font-weight: bold;
+    z-index: 2;
+    padding-top: 8px;
+  }
+
+  .create-btn::before,
+  .qa-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("{% static 'community/images/yun.svg' %}");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    z-index: -1;
+  }
+
+  /* 发布帖子祥云：动画 + 正常方向 */
+  .create-btn::before {
+    filter: brightness(0) saturate(100%) invert(56%) sepia(14%) saturate(683%)
+      hue-rotate(358deg);
+    animation: windFloatCreate 2.4s ease-in-out infinite alternate;
+  }
+  @keyframes windFloatCreate {
+    0% {
+      transform: translateX(0) scale(1);
+    }
+    50% {
+      transform: translateX(-3px) scale(1.03);
+    }
+    100% {
+      transform: translateX(3px) scale(1);
+    }
+  }
+
+  /* 问答祥云：翻转朝右 + 独立动画（对称）*/
+  .qa-btn::before {
+    filter: brightness(0) saturate(100%) invert(68%) sepia(97%) saturate(1082%)
+      hue-rotate(358deg);
+    transform: scaleX(-1);
+    animation: windFloatQA 2.4s ease-in-out infinite alternate;
+  }
+  @keyframes windFloatQA {
+    0% {
+      transform: translateX(0) scale(1) scaleX(-1);
+    }
+    50% {
+      transform: translateX(3px) scale(1.03) scaleX(-1);
+    }
+    100% {
+      transform: translateX(-3px) scale(1) scaleX(-1);
+    }
+  }
+
+  /* 点击回弹 */
+  .create-btn:active::before,
+  .qa-btn:active::before {
+    animation: windClick 0.3s ease-out;
+  }
+  @keyframes windClick {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.94);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* ====================== 刷新按钮：放到搜索框左侧（修复被遮挡） ====================== */
+  .refresh-btn {
+    width: 42px;
+    height: 42px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.4s ease;
+  }
+  .refresh-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("{% static 'community/images/refresh.svg' %}");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+  }
+  .refresh-btn:active {
+    transform: rotate(180deg);
+  }
+
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #e6e0d9;
+    border-radius: 14px;
+    background: #fffdf9;
+  }
+
+  .search-btn {
+    padding: 12px 20px;
+    background: #9c7a5b;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+  }
+
+  .sort-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .sort-btn {
+    padding: 8px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .sort-btn.active {
+    background: #9c7a5b;
+    color: #fff;
+  }
+
+  .post-card {
+    background: #fff;
+    padding: 24px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      transform 0.2s;
+  }
+
+  .post-card:hover {
+    background: #fcf8f3;
+    transform: translateY(-1px);
+  }
+
+  .post-title {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: #2f241b;
+  }
+
+  .post-author {
+    color: #9c7a5b;
+    margin-bottom: 6px;
+  }
+
+  .post-time {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 12px;
+  }
+
+  .post-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .post-tag {
+    background: #f5efe9;
+    color: #9c7a5b;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+  }
+
+  .post-content {
+    line-height: 1.8;
+    margin-bottom: 18px;
+    color: #4b3b2f;
+  }
+
+  .post-media {
+    margin-bottom: 18px;
+  }
+
+  .post-media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .post-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 14px;
+    display: block;
+    background: #f5f5f5;
+  }
+
+  .action-bar {
+    display: flex;
+    gap: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+  }
+
+  .action-item {
+    color: #666;
+    user-select: none;
+  }
+
+  .empty-box,
+  .loading-box,
+  .error-box {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+    background: #fff;
+    border-radius: 20px;
+  }
+
+  .font-size-bar {
+    position: fixed;
+    top: 86px;
+    right: 18px;
+    background: #fff;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 99;
+  }
+
+  .font-size-bar button {
+    padding: 4px 8px;
+    margin: 0 4px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 44px;
+    height: 44px;
+    background: #9c7a5b;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 99;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="community-page">
+  <div class="font-size-bar">
+    字体：
+    <button type="button" data-size="14">小</button>
+    <button type="button" data-size="16">中</button>
+    <button type="button" data-size="18">大</button>
+  </div>
+
+  <div class="community-container">
+    <div class="title-wrap">
+      <h1 class="page-title">纹样设计交流社区</h1>
+    </div>
+
+    <div class="btn-group">
+      <button class="create-btn" type="button" id="goPublishBtn">
+        发布帖子
+      </button>
+      <button class="qa-btn" type="button" id="goQaBtn">问答专区</button>
+    </div>
+
+    <!-- 搜索栏：刷新按钮放在最左侧 -->
+    <div class="search-bar">
+      <button
+        class="refresh-btn"
+        type="button"
+        id="refreshBtn"
+        title="刷新"
+      ></button>
+      <input
+        id="searchKw"
+        class="search-input"
+        placeholder="关键词搜索标题或内容"
+      />
+      <button class="search-btn" type="button" id="searchBtn">搜索</button>
+    </div>
+
+    <div class="sort-group">
+      <button class="sort-btn active" type="button" data-sort="new">
+        最新
+      </button>
+      <button class="sort-btn" type="button" data-sort="hot">最热</button>
+      <button class="sort-btn" type="button" data-sort="view">最多浏览</button>
+      <button class="sort-btn" type="button" data-sort="comment">
+        最多评论
+      </button>
+    </div>
+
+    <div id="postList">
+      <div class="loading-box">正在加载社区帖子…</div>
+    </div>
+  </div>
+
+  <div class="to-top" id="toTopBtn">↑</div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  const apiUrl = "/api/community/posts/";
+  let allPosts = [];
+  let currentSort = "new";
+
+  const postListEl = document.getElementById("postList");
+  const searchKwEl = document.getElementById("searchKw");
+
+  function setFontSize(size) {
+    document.documentElement.style.fontSize = size + "px";
+  }
+
+  function formatTime(timeStr) {
+    if (!timeStr) return "";
+    const date = new Date(timeStr);
+    return date.toLocaleString("zh-CN");
+  }
+
+  function escapeHtml(text) {
+    if (text === null || text === undefined) return "";
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function getPreviewText(content, maxLen = 90) {
+    if (!content) return "";
+    return content.length > maxLen ? content.slice(0, maxLen) + "..." : content;
+  }
+
+  function getImageList(item) {
+    const mediaList = Array.isArray(item.media) ? item.media : [];
+    return mediaList.filter(
+      (media) => media.media_type === "image" && (media.file_url || media.file),
+    );
+  }
+
+  function getFilteredPosts() {
+    const kw = searchKwEl.value.trim().toLowerCase();
+    let result = allPosts.filter((post) => post.post_type === "post");
+
+    if (kw) {
+      result = result.filter((post) => {
+        const title = (post.title || "").toLowerCase();
+        const content = (post.content || "").toLowerCase();
+        return title.includes(kw) || content.includes(kw);
+      });
+    }
+
+    switch (currentSort) {
+      case "hot":
+        result.sort((a, b) => {
+          const hotA = (a.like_count || 0) * 2 + (a.comment_count || 0);
+          const hotB = (b.like_count || 0) * 2 + (b.comment_count || 0);
+          return hotB - hotA;
+        });
+        break;
+      case "view":
+        result.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+        break;
+      case "comment":
+        result.sort((a, b) => (b.comment_count || 0) - (a.comment_count || 0));
+        break;
+      default:
+        result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+
+    return result;
+  }
+
+  function renderPosts() {
+    const posts = getFilteredPosts();
+
+    if (!posts.length) {
+      postListEl.innerHTML = `<div class="empty-box">暂无相关内容</div>`;
+      return;
+    }
+
+    postListEl.innerHTML = posts
+      .map((post) => {
+        // 翻译英文标签为中文
+        const typeText = post.post_type === "post" ? "帖子" : post.post_type;
+        const visText = post.visibility === "public" ? "公开" : post.visibility;
+        const tags = [typeText, visText].filter(Boolean);
+        const tagsHtml = tags
+          .map((tag) => `<span class="post-tag">${escapeHtml(tag)}</span>`)
+          .join("");
+
+        const imageList = getImageList(post);
+        const mediaHtml = imageList.length
+          ? `
+          <div class="post-media">
+            <div class="post-media-grid">
+              ${imageList
+                .slice(0, 3)
+                .map(
+                  (item) => `
+                <img
+                  class="post-image"
+                  src="${escapeHtml(item.file_url || item.file || "")}"
+                  alt="${escapeHtml(post.alt_text || post.title || "帖子图片")}"
+                />
+              `,
+                )
+                .join("")}
+            </div>
+          </div>
+        `
+          : "";
+
+        return `
+        <div class="post-card" onclick="goDetail(${post.id})">
+          <h2 class="post-title">${escapeHtml(post.title)}</h2>
+          <div class="post-author">${escapeHtml(post.author_name || "匿名用户")}</div>
+          <div class="post-time">
+            ${formatTime(post.created_at)} · 浏览 ${post.view_count || 0}
+          </div>
+          <div class="post-tags">${tagsHtml}</div>
+          <div class="post-content">${escapeHtml(getPreviewText(post.content))}</div>
+          ${mediaHtml}
+          <div class="action-bar">
+            <div class="action-item">👍 ${post.like_count || 0}</div>
+            <div class="action-item">⭐ ${post.favorite_count || 0}</div>
+            <div class="action-item">💬 ${post.comment_count || 0}</div>
+          </div>
+        </div>
+      `;
+      })
+      .join("");
+  }
+
+  function goDetail(postId) {
+    window.location.href = `/community/posts/${postId}/`;
+  }
+
+  async function loadPosts() {
+    postListEl.innerHTML = `<div class="loading-box">正在加载社区帖子…</div>`;
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("加载失败");
+      }
+
+      const data = await response.json();
+      allPosts = Array.isArray(data.results) ? data.results : [];
+      renderPosts();
+    } catch (error) {
+      console.error("加载帖子失败：", error);
+      postListEl.innerHTML = `<div class="error-box">社区帖子加载失败，请稍后重试。</div>`;
+    }
+  }
+
+  // 修复：搜索按钮点击
+  document.getElementById("searchBtn").addEventListener("click", function () {
+    renderPosts();
+  });
+  searchKwEl.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      renderPosts();
+    }
+  });
+
+  document.querySelectorAll(".sort-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      document
+        .querySelectorAll(".sort-btn")
+        .forEach((b) => b.classList.remove("active"));
+      this.classList.add("active");
+      currentSort = this.dataset.sort;
+      renderPosts();
+    });
+  });
+
+  document.querySelectorAll(".font-size-bar button").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      setFontSize(Number(this.dataset.size));
+    });
+  });
+
+  document.getElementById("toTopBtn").addEventListener("click", function () {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  document
+    .getElementById("goPublishBtn")
+    .addEventListener("click", function () {
+      window.location.href = "/community/publish/";
+    });
+
+  document.getElementById("goQaBtn").addEventListener("click", function () {
+    window.location.href = "/community/qa/";
+  });
+
+  document.getElementById("refreshBtn").addEventListener("click", loadPosts);
+
+  loadPosts();
+</script>
+{% endblock %}

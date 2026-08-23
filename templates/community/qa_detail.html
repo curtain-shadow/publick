@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>问答详情</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Microsoft YaHei", sans-serif;
+      }
+      body {
+        background: #faf6f0;
+        padding: 96px 20px 32px;
+        color: #2f241b;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .back-top-left {
+        position: sticky;
+        top: 76px;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 18px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        color: #f59e0b;
+        cursor: pointer;
+        font-size: 16px;
+        z-index: 20;
+        background: rgba(255, 253, 249, 0.95);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+      }
+      .card,
+      .answer-box,
+      .loading,
+      .error-box {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      }
+      .card,
+      .answer-box {
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+      .title {
+        font-size: 26px;
+        margin-bottom: 12px;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+      .meta {
+        color: #999;
+        font-size: 14px;
+        margin-bottom: 16px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .tag {
+        background: #fff0d9;
+        color: #f59e0b;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 13px;
+      }
+      .content {
+        line-height: 1.8;
+        margin-bottom: 20px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .question-media {
+        margin-bottom: 20px;
+      }
+      .question-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      }
+      .question-image {
+        width: 100%;
+        display: block;
+        border-radius: 16px;
+        background: #f5f5f5;
+        object-fit: cover;
+      }
+      .stats {
+        color: #666;
+        display: flex;
+        gap: 20px;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+      }
+
+      .action-bar {
+        display: flex;
+        gap: 20px;
+        padding-top: 16px;
+        border-top: 1px solid #f0f0f0;
+        flex-wrap: wrap;
+        margin-top: 16px;
+      }
+
+      .action-item {
+        cursor: pointer;
+        color: #666;
+        user-select: none;
+      }
+
+      .action-item.active {
+        color: #f59e0b;
+        font-weight: 600;
+      }
+      .answer-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 15px;
+      }
+      .answer-title {
+        font-size: 18px;
+      }
+      .answer-tip {
+        font-size: 13px;
+        color: #a05f00;
+        background: #fff7eb;
+        border-radius: 999px;
+        padding: 6px 10px;
+      }
+      .answer-item {
+        background: #fdfaf6;
+        padding: 16px;
+        border-radius: 16px;
+        margin-bottom: 10px;
+      }
+      .answer-user {
+        font-weight: bold;
+        margin-bottom: 6px;
+        color: #6f533d;
+      }
+      .answer-content {
+        line-height: 1.7;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .answer-input-box {
+        margin-bottom: 20px;
+      }
+      .answer-textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        min-height: 100px;
+        resize: vertical;
+        background: #fff;
+      }
+      .answer-textarea:disabled {
+        background: #f5f5f5;
+        cursor: not-allowed;
+      }
+      .btn {
+        margin-top: 10px;
+        width: auto;
+        padding: 10px 20px;
+        border-radius: 12px;
+        border: none;
+        background: #f59e0b;
+        color: #fff;
+        cursor: pointer;
+      }
+      .btn:disabled {
+        background: #efc989;
+        cursor: not-allowed;
+      }
+      .loading,
+      .error-box {
+        padding: 28px 16px;
+        text-align: center;
+        color: #999;
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 88px 14px 28px;
+        }
+        .back-top-left {
+          top: 70px;
+          font-size: 14px;
+        }
+        .card,
+        .answer-box {
+          padding: 18px;
+          border-radius: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="back-top-left" onclick="goBackToQaList()">← 返回问答专区</div>
+      <div class="card" id="questionDetail">正在加载问题详情…</div>
+
+      <div class="answer-box">
+        <div class="answer-input-box">
+          <textarea
+            id="answerContent"
+            class="answer-textarea"
+            placeholder="写下你的回答...（Ctrl/⌘ + Enter 可快速提交）"
+          ></textarea>
+          <button class="btn" id="submitAnswerBtn" type="button">提交回答</button>
+        </div>
+
+        <div class="answer-title-row">
+          <h3 class="answer-title">回答列表</h3>
+          <div id="answerTip" class="answer-tip">正在检查回答状态…</div>
+        </div>
+        <div id="answerList" class="loading">正在加载回答…</div>
+      </div>
+    </div>
+
+    <script>
+      const pathParts = window.location.pathname.split("/").filter(Boolean);
+      const qaId = pathParts[pathParts.length - 1];
+      let currentQuestion = null;
+      let replyParentId = null;
+      let replyToUserId = null;
+
+      function escapeHtml(text) {
+        if (text === null || text === undefined) return "";
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function formatTime(timeStr) {
+        if (!timeStr) return "";
+        const date = new Date(timeStr);
+        return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("zh-CN");
+      }
+
+      function getCookie(name) {
+        const cookies = document.cookie ? document.cookie.split("; ") : [];
+        for (let i = 0; i < cookies.length; i++) {
+          const parts = cookies[i].split("=");
+          const key = decodeURIComponent(parts[0]);
+          const value = parts.slice(1).join("=");
+          if (key === name) return decodeURIComponent(value);
+        }
+        return null;
+      }
+
+      async function apiRequest(url, method = "GET", data = null) {
+        const token = localStorage.getItem("token");
+        const csrftoken = getCookie("csrftoken");
+        const headers = {};
+
+        if (data) headers["Content-Type"] = "application/json";
+        if (token) headers["Authorization"] = `Token ${token}`;
+        if (csrftoken) headers["X-CSRFToken"] = csrftoken;
+
+        const response = await fetch(url, {
+          method,
+          credentials: "include",
+          headers,
+          body: data ? JSON.stringify(data) : undefined
+        });
+        const result = await response.json().catch(() => ({}));
+        return { ok: response.ok, status: response.status, data: result };
+      }
+
+      function goBackToQaList() {
+        window.location.href = "/community/qa/";
+      }
+
+      function updateAnswerFormState() {
+        const isClosed = currentQuestion && currentQuestion.comment_status === "closed";
+        const textarea = document.getElementById("answerContent");
+        const btn = document.getElementById("submitAnswerBtn");
+        const tip = document.getElementById("answerTip");
+
+        if (isClosed) {
+          textarea.disabled = true;
+          btn.disabled = true;
+          textarea.placeholder = "当前问题已关闭回答";
+          tip.textContent = "当前问题已关闭回答";
+          return;
+        }
+
+        textarea.disabled = false;
+        btn.disabled = false;
+        textarea.placeholder = "写下你的回答...（Ctrl+ Enter 可快速提交）";
+        tip.textContent = "理性表达，优先给出可落地建议";
+      }
+
+      function renderQuestion() {
+        const detailEl = document.getElementById("questionDetail");
+
+        if (!currentQuestion) {
+          detailEl.className = "error-box";
+          detailEl.innerHTML = "问题不存在或已被删除";
+          return;
+        }
+
+        const mediaList = Array.isArray(currentQuestion.media) ? currentQuestion.media : [];
+        const imageList = mediaList.filter(item => item.media_type === "image" && (item.file_url || item.file));
+
+        const mediaHtml = imageList.length
+          ? `
+            <div class="question-media">
+              <div class="question-media-grid">
+                ${imageList.map(item => `
+                  <img
+                    class="question-image"
+                    src="${escapeHtml(item.file_url || item.file || "")}"
+                    alt="${escapeHtml(currentQuestion.alt_text || currentQuestion.title || "问答图片")}"
+                  />
+                `).join("")}
+              </div>
+            </div>
+          `
+          : "";
+
+        detailEl.className = "card";
+        detailEl.innerHTML = `
+          <h1 class="title">${escapeHtml(currentQuestion.title || "未命名问题")}</h1>
+          <div class="meta">
+            <span>提问者：${escapeHtml(currentQuestion.author_name || "匿名用户")}</span>
+            <span>${formatTime(currentQuestion.created_at)}</span>
+            <span class="tag">问答</span>
+            ${currentQuestion.comment_status === "closed" ? '<span class="tag">已关闭回答</span>' : ''}
+          </div>
+          <div class="content">${escapeHtml(currentQuestion.content || "")}</div>
+          ${mediaHtml}
+          <div class="stats">
+            <span>💬 ${currentQuestion.comment_count || 0} 个回答</span>
+            <span>👍 ${currentQuestion.like_count || 0}</span>
+            <span>⭐ ${currentQuestion.favorite_count || 0}</span>
+            <span>👀 ${currentQuestion.view_count || 0}</span>
+          </div>
+        `;
+      }
+
+      function renderAnswers(comments) {
+        const answerListEl = document.getElementById("answerList");
+
+        if (!Array.isArray(comments) || comments.length === 0) {
+          answerListEl.className = "loading";
+          answerListEl.innerHTML = "暂无回答，欢迎抢先作答";
+          return;
+        }
+
+        answerListEl.className = "";
+        answerListEl.innerHTML = comments.map(ans => `
+          <div class="answer-item">
+            <div class="answer-user">
+              ${escapeHtml(ans.username || "匿名用户")}
+              · <span style="font-size:12px;color:#999;font-weight:normal;">${formatTime(ans.created_at)}</span>
+            </div>
+            <div class="answer-content">${escapeHtml(ans.content || "")}</div>
+
+            <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;">
+              <span class="action-item ${ans.is_liked ? "active" : ""}"
+                    onclick="toggleAnswerLike(${ans.id})">
+                👍 ${ans.like_count || 0}
+              </span>
+              <span class="action-item"
+                    onclick="startReply(${ans.id}, '${escapeHtml(ans.username || "匿名用户")}', ${ans.user || 'null'})">
+                回复
+              </span>
+            </div>
+
+            ${(ans.replies && ans.replies.length) ? `
+              <div style="margin-top:12px;padding-left:14px;border-left:2px solid #f2d8ae;">
+                ${ans.replies.map(reply => `
+                  <div class="answer-item" style="margin-bottom:8px;">
+                    <div class="answer-user">
+                      ${escapeHtml(reply.username || "匿名用户")}
+                      ${reply.reply_to_username ? ` 回复 ${escapeHtml(reply.reply_to_username)}` : ""}
+                      · <span style="font-size:12px;color:#999;font-weight:normal;">${formatTime(reply.created_at)}</span>
+                    </div>
+                    <div class="answer-content">${escapeHtml(reply.content || "")}</div>
+                    <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;">
+                      <span class="action-item ${reply.is_liked ? "active" : ""}"
+                            onclick="toggleAnswerLike(${reply.id})">
+                        👍 ${reply.like_count || 0}
+                      </span>
+                      <span class="action-item"
+                            onclick="startReply(${ans.id}, '${escapeHtml(reply.username || "匿名用户")}', ${reply.user || 'null'})">
+                        回复
+                      </span>
+                    </div>
+                  </div>
+                `).join("")}
+              </div>
+            ` : ""}
+          </div>
+        `).join("");
+      }
+
+      async function loadQuestionDetail() {
+        const result = await apiRequest(`/community/api/community/posts/${qaId}/`);
+
+        if (!result.ok || result.data.code !== 200 || !result.data.data) {
+          currentQuestion = null;
+          renderQuestion();
+          return false;
+        }
+
+        if (result.data.data.post_type !== "qa") {
+          document.getElementById("questionDetail").className = "error-box";
+          document.getElementById("questionDetail").innerHTML = "该内容不是问答帖子";
+          document.getElementById("answerList").className = "error-box";
+          document.getElementById("answerList").innerHTML = "无法加载回答";
+          document.getElementById("submitAnswerBtn").disabled = true;
+          document.getElementById("answerContent").disabled = true;
+          return false;
+        }
+
+        currentQuestion = result.data.data;
+        renderQuestion();
+        updateAnswerFormState();
+        bindQuestionActions();
+        return true;
+      }
+
+      async function loadAnswers() {
+        const result = await apiRequest(`/community/api/community/posts/${qaId}/comments/`);
+        if (!result.ok || result.data.code !== 200) {
+          document.getElementById("answerList").className = "error-box";
+          document.getElementById("answerList").innerHTML = "回答加载失败，请稍后重试。";
+          return;
+        }
+        renderAnswers(result.data.results || []);
+      }
+
+      async function submitAnswer() {
+        const textarea = document.getElementById("answerContent");
+        const btn = document.getElementById("submitAnswerBtn");
+        const content = textarea.value.trim();
+
+        if (!qaId) {
+          alert("缺少问题 ID");
+          return;
+        }
+        if (!currentQuestion) {
+          alert("问题信息尚未加载完成");
+          return;
+        }
+        if (currentQuestion.comment_status === "closed") {
+          alert("当前问题已关闭回答");
+          return;
+        }
+        if (!content) {
+          alert("回答内容不能为空");
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "提交中...";
+
+        try {
+          const result = await apiRequest(`/community/api/community/posts/${qaId}/comment/`, "POST", {
+            content,
+            parent: replyParentId,
+            reply_to_user: replyToUserId
+          });
+
+          if (result.status === 401 || result.status === 403) {
+            alert("请先登录后再回答");
+            window.location.href = "/login/";
+            return;
+          }
+
+          if (!result.ok || result.data.code !== 201) {
+            const errorMessage =
+              result.data.message ||
+              (result.data.errors && JSON.stringify(result.data.errors)) ||
+              "提交回答失败，请稍后重试";
+            alert(errorMessage);
+            return;
+          }
+
+          textarea.value = "";
+          await Promise.all([loadQuestionDetail(), loadAnswers()]);
+          clearReplyState();
+          alert("回答成功");
+        } catch (error) {
+          console.error("提交回答异常：", error);
+          alert("提交回答失败，请稍后重试");
+        } finally {
+          if (!currentQuestion || currentQuestion.comment_status !== "closed") {
+            btn.disabled = false;
+          }
+          btn.textContent = "提交回答";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", async function () {
+        if (!qaId) {
+          document.getElementById("questionDetail").className = "error-box";
+          document.getElementById("questionDetail").innerHTML = "缺少问题 ID";
+          document.getElementById("answerList").className = "error-box";
+          document.getElementById("answerList").innerHTML = "无法加载回答";
+          return;
+        }
+
+        document.getElementById("submitAnswerBtn").addEventListener("click", submitAnswer);
+        document.getElementById("answerContent").addEventListener("keydown", function (event) {
+          if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+            event.preventDefault();
+            submitAnswer();
+          }
+        });
+
+        const ok = await loadQuestionDetail();
+        if (ok) {
+          loadAnswers();
+        }
+      });
+
+      function startReply(answerId, username, userId = null) {
+        replyParentId = answerId;
+        replyToUserId = userId;
+
+        const textarea = document.getElementById("answerContent");
+        textarea.placeholder = `回复 ${username}：`;
+        textarea.focus();
+      }
+
+      function clearReplyState() {
+        replyParentId = null;
+        replyToUserId = null;
+
+        const textarea = document.getElementById("answerContent");
+        textarea.placeholder = "写下你的回答...（Ctrl/⌘ + Enter 可快速提交）";
+      }
+
+      async function toggleAnswerLike(commentId) {
+        const result = await apiRequest(`/community/api/community/comments/${commentId}/like/`, "POST");
+
+        if (result.status === 401 || result.status === 403) {
+          alert("请先登录后再点赞");
+          window.location.href = "/login/";
+          return;
+        }
+
+        if (!result.ok || result.data.code !== 200) {
+          alert(result.data.message || "点赞失败");
+          return;
+        }
+
+        loadAnswers();
+      }
+
+      function bindQuestionActions() {
+        const likeBtn = document.getElementById("questionLikeBtn");
+        const favoriteBtn = document.getElementById("questionFavoriteBtn");
+
+        if (likeBtn) {
+          likeBtn.addEventListener("click", async function () {
+            const result = await apiRequest(`/community/api/community/posts/${qaId}/like/`, "POST");
+
+            if (result.status === 401 || result.status === 403) {
+              alert("请先登录后再点赞");
+              window.location.href = "/login/";
+              return;
+            }
+
+            if (!result.ok || result.data.code !== 200) {
+              alert(result.data.message || "点赞失败");
+              return;
+            }
+
+            const liked = !!result.data.liked;
+            const likeCount = result.data.like_count || 0;
+
+            likeBtn.classList.toggle("active", liked);
+            likeBtn.textContent = `👍 ${likeCount}`;
+
+            if (currentQuestion) {
+              currentQuestion.is_liked = liked;
+              currentQuestion.like_count = likeCount;
+            }
+          });
+        }
+
+        if (favoriteBtn) {
+          favoriteBtn.addEventListener("click", async function () {
+            const result = await apiRequest(`/community/api/community/posts/${qaId}/favorite/`, "POST");
+
+            if (result.status === 401 || result.status === 403) {
+              alert("请先登录后再收藏");
+              window.location.href = "/login/";
+              return;
+            }
+
+            if (!result.ok || result.data.code !== 200) {
+              alert(result.data.message || "收藏失败");
+              return;
+            }
+
+            const favorited = !!result.data.favorited;
+            const favoriteCount = result.data.favorite_count || 0;
+
+            favoriteBtn.classList.toggle("active", favorited);
+            favoriteBtn.textContent = `⭐ ${favoriteCount}`;
+
+            if (currentQuestion) {
+              currentQuestion.is_favorited = favorited;
+              currentQuestion.favorite_count = favoriteCount;
+            }
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

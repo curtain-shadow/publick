@@ -1,0 +1,2240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}设计工具 - 中华传统纹样数字库{% endblock %}
+
+{% block extra_css %}
+<style>
+.design-tool {
+    padding: 120px 0 40px;
+    background: var(--bg-light, #f8f4ee);
+    min-height: calc(100vh - 200px);
+}
+
+.design-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.design-header h1 {
+    font-size: 2rem;
+    color: var(--primary-color, #8c3c2c);
+    margin-bottom: 10px;
+}
+
+.design-header p {
+    color: var(--text-secondary, #666);
+}
+
+.design-layout {
+    display: grid;
+    grid-template-columns: 320px minmax(640px, 1fr) 300px;
+    gap: 20px;
+    height: 680px;
+    min-height: 680px;
+    align-items: stretch;
+}
+
+.design-sidebar,
+.design-properties,
+.design-canvas-area {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    contain: layout paint;
+}
+
+.design-sidebar {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 680px;
+    min-height: 680px;
+}
+
+.sidebar-header {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.sidebar-header h3 {
+    margin: 0 0 12px;
+    color: var(--primary-color, #8c3c2c);
+}
+
+.sidebar-search input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+}
+
+.sidebar-search input:focus {
+    border-color: var(--primary-color, #8c3c2c);
+}
+
+.upload-box {
+    padding: 14px 16px;
+    border-bottom: 1px solid #eee;
+    background: #fcfaf7;
+    flex-shrink: 0;
+}
+
+.upload-box label {
+    display: block;
+    font-size: 14px;
+    color: #8c3c2c;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.upload-box input[type="file"] {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.upload-tip {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.upload-option-group {
+    margin: 10px 0 12px;
+}
+
+.upload-option-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8c3c2c;
+    margin-bottom: 8px;
+}
+
+.upload-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.upload-toggle-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    border: 1px solid #e6d8c8;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    padding: 0;
+}
+
+.upload-toggle-item input {
+    display: none;
+}
+
+.upload-toggle-item span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 40px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #7a5c43;
+    text-align: center;
+    line-height: 1;
+}
+
+.upload-toggle-item.active {
+    border-color: #8c3c2c;
+    background: #f8efe7;
+    box-shadow: inset 0 0 0 1px rgba(140, 60, 44, 0.08);
+}
+
+.upload-toggle-item.active span {
+    color: #8c3c2c;
+}
+
+.upload-option-note {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #777;
+}
+
+.pattern-badge-user {
+    background: #eef5ea;
+    color: #477133;
+}
+
+.pattern-badge-plain {
+    background: #eceff5;
+    color: #51627d;
+}
+
+.upload-status {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #666;
+}
+
+.sidebar-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 14px;
+}
+
+.section-title {
+    padding: 12px 16px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #8c3c2c;
+}
+
+.pattern-list {
+    padding: 14px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.pattern-item {
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.pattern-item:hover {
+    border-color: var(--primary-color, #8c3c2c);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(140, 60, 44, 0.12);
+}
+
+.pattern-item img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    background: #f4f4f4;
+    display: block;
+}
+
+.pattern-item-name {
+    padding: 8px 6px 10px;
+    font-size: 12px;
+    text-align: center;
+    color: #333;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.pattern-badge {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+    border-radius: 999px;
+    background: #f3ece5;
+    color: #8c3c2c;
+}
+
+.loading-spinner,
+.empty-text {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #888;
+    padding: 24px 10px;
+}
+
+.design-canvas-area {
+    display: flex;
+    flex-direction: column;
+    height: 680px;
+    min-height: 680px;
+    overflow: hidden;
+}
+
+.canvas-toolbar {
+    padding: 14px 16px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.design-name-input,
+.toolbar-select {
+    padding: 9px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    min-width: 180px;
+    outline: none;
+    font-size: 14px;
+    background: #fff;
+}
+
+.design-name-input {
+    min-width: 220px;
+}
+
+.toolbar-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #444;
+    margin-right: 6px;
+}
+
+.tool-btn {
+    padding: 9px 14px;
+    background: #f4f4f4;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.tool-btn:hover {
+    background: #e8e8e8;
+}
+
+.tool-btn.primary {
+    background: var(--primary-color, #8c3c2c);
+    color: #fff;
+}
+
+.tool-btn.primary:hover {
+    opacity: 0.92;
+}
+
+.tool-btn.danger {
+    background: #fce9e7;
+    color: #b53b2d;
+}
+
+.tool-btn.small {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.design-canvas {
+    flex: 1;
+    min-height: 0;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.canvas-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #FDF5E6;
+    border: 1px dashed rgba(140, 60, 44, 0.18);
+    touch-action: none;
+}
+
+.canvas-content.exporting-image .canvas-pattern {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.canvas-content.exporting-image .transform-handle {
+    display: none !important;
+}
+
+.canvas-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #9a8f84;
+    z-index: 1;
+    text-align: center;
+    padding: 20px;
+}
+
+.canvas-placeholder i {
+    font-size: 4rem;
+    margin-bottom: 14px;
+    opacity: 0.9;
+}
+
+.base-model-image {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 360px;
+    height: 360px;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
+    opacity: 0.95;
+    pointer-events: none;
+    user-select: none;
+    z-index: 2;
+}
+
+.canvas-pattern {
+    position: absolute;
+    cursor: move;
+    z-index: 5;
+    transform-origin: center center;
+    user-select: none;
+    touch-action: none;
+    will-change: transform, left, top, opacity;
+    backface-visibility: hidden;
+}
+
+.canvas-pattern.selected {
+    outline: 2px solid var(--primary-color, #8c3c2c);
+    outline-offset: 4px;
+    box-shadow: 0 0 0 4px rgba(140, 60, 44, 0.12);
+}
+
+.pattern-source {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    display: block;
+    opacity: 0;
+}
+
+.pattern-render-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    user-select: none;
+    background-color: #6b3f23;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+}
+
+.transform-handle {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 3;
+}
+
+.canvas-pattern.selected .transform-handle {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.rotate-handle {
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #8c3c2c;
+    cursor: grab;
+}
+
+.rotate-handle::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 16px;
+    background: rgba(140, 60, 44, 0.4);
+    left: 50%;
+    top: 16px;
+    transform: translateX(-50%);
+}
+
+.scale-handle {
+    right: -10px;
+    bottom: -10px;
+    background: #d39a3c;
+    cursor: nwse-resize;
+}
+
+.design-properties {
+    overflow: hidden;
+    height: 680px;
+    min-height: 680px;
+    display: flex;
+    flex-direction: column;
+}
+
+.properties-header {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.properties-header h3 {
+    margin: 0 0 6px;
+    color: var(--primary-color, #8c3c2c);
+}
+
+.panel-tip {
+    margin: 0;
+    color: #888;
+    font-size: 13px;
+}
+
+.properties-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+}
+
+.property-group {
+    margin-bottom: 22px;
+}
+
+.property-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.selected-name {
+    padding: 10px 12px;
+    background: #f8f6f2;
+    border-radius: 8px;
+    color: #666;
+    font-size: 14px;
+}
+
+.property-group input[type="color"] {
+    width: 100%;
+    height: 42px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.property-group input[type="range"] {
+    width: 100%;
+}
+
+.property-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    background: #fff;
+}
+
+.property-group select:disabled {
+    background: #f5f5f5;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.range-value {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #888;
+}
+
+.layer-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.interaction-tip {
+    padding: 12px 14px;
+    background: #fcf7f1;
+    border: 1px solid #f0e2d1;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #7a5c43;
+}
+
+.interaction-tip strong {
+    color: #8c3c2c;
+}
+
+.pattern-manage {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.manage-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.manage-btn:hover {
+    background: rgba(140, 60, 44, 0.1);
+}
+
+.delete-btn:hover {
+    color: #d32f2f;
+}
+
+.rename-btn:hover {
+    color: var(--primary-color, #8c3c2c);
+}
+
+@media (max-width: 1200px) {
+    .design-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .design-sidebar,
+    .design-properties,
+    .design-canvas-area {
+        min-height: auto;
+        height: auto;
+    }
+
+    .design-sidebar { order: 2; }
+    .design-canvas-area { order: 1; }
+    .design-properties { order: 3; }
+
+    .design-canvas {
+        min-height: 560px;
+    }
+
+    .canvas-content {
+        min-height: 520px;
+    }
+
+    .sidebar-scroll,
+    .properties-content {
+        overflow: visible;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="design-tool">
+    <div class="container">
+        <div class="design-header">
+            <h1>灵感漫游 · 在线设计工具</h1>
+            <p>选择基础器物模板与传统纹样，自由组合，创造属于你的传统纹样设计作品</p>
+        </div>
+
+        <div class="design-layout">
+            <aside class="design-sidebar">
+                <div class="sidebar-header">
+                    <h3>纹样库</h3>
+                    <div class="sidebar-search">
+                        <input type="text" id="patternSearch" placeholder="搜索纹样名称、寓意或来源...">
+                    </div>
+                </div>
+
+                <div class="upload-box">
+                    <label for="uploadPatternInput">上传图片并保存到我的纹样</label>
+                    <div class="upload-tip">
+                        建议上传：单个主体、背景简洁、边缘清晰的 PNG/JPG/WEBP 图片，尺寸至少 300×300。
+                    </div>
+
+                    <div class="upload-option-group">
+                        <div class="upload-option-label">是否自动抠图？</div>
+                        <div class="upload-toggle" id="autoCutoutGroup">
+                            <label class="upload-toggle-item active">
+                                <input type="radio" name="autoCutout" value="true" checked>
+                                <span>是</span>
+                            </label>
+                            <label class="upload-toggle-item">
+                                <input type="radio" name="autoCutout" value="false">
+                                <span>否</span>
+                            </label>
+                        </div>
+                        <div class="upload-option-note">
+                            选择“是”会先自动去背景再保存到左侧纹样库；选择“否”会直接保存原图。
+                        </div>
+                    </div>
+
+                    <input type="file" id="uploadPatternInput" accept="image/png,image/jpeg,image/webp">
+                    <button id="uploadPatternBtn" class="tool-btn primary" type="button">
+                        <i class="fas fa-upload"></i> 上传并保存
+                    </button>
+                    <div id="uploadStatus" class="upload-status"></div>
+                </div>
+
+                <div class="sidebar-scroll">
+                    <div class="section-title">系统推荐纹样</div>
+                    <div class="pattern-list" id="systemPatternList">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i> 加载中...
+                        </div>
+                    </div>
+
+                    <div class="section-title">我的纹样</div>
+                    <div class="pattern-list" id="userPatternList">
+                        <div class="empty-text">暂未上传纹样</div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="design-canvas-area">
+                <div class="canvas-toolbar">
+                    <input type="text" id="designNameInput" class="design-name-input" placeholder="请输入作品名称">
+
+                    <select id="baseModelSelect" class="toolbar-select">
+                        <option value="">选择基础器物</option>
+                        <option value="canvas">画布</option>
+                        <option value="vase">花瓶</option>
+                        <option value="plate">瓷盘</option>
+                    </select>
+
+                    <label class="toolbar-check">
+                        <input type="checkbox" id="isPublicInput">
+                        <span>公开作品</span>
+                    </label>
+
+                    <button id="clearCanvasBtn" class="tool-btn">
+                        <i class="fas fa-trash"></i> 清空
+                    </button>
+                    <button id="deleteSelectedBtn" class="tool-btn danger">
+                        <i class="fas fa-times"></i> 删除选中
+                    </button>
+                    <button id="exportBtn" class="tool-btn primary">
+                        <i class="fas fa-download"></i> 导出数据
+                    </button>
+                    <button id="saveDesignBtn" class="tool-btn primary">
+                        <i class="fas fa-image"></i> 导出作品
+                    </button>
+                </div>
+
+                <div class="design-canvas" id="designCanvas">
+                    <div class="canvas-content" id="canvasContent">
+                        <img id="baseModelImage" class="base-model-image" src="" alt="基础器物模板" style="display: none;">
+                        <div class="canvas-placeholder" id="canvasPlaceholder">
+                            <i class="fas fa-palette"></i>
+                            <p>先选择基础器物，再从左侧点击纹样添加到画布</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="design-properties">
+                <div class="properties-header">
+                    <h3>属性设置</h3>
+                    <p class="panel-tip">选中画布中的纹样后可进行编辑</p>
+                </div>
+
+                <div class="properties-content">
+                    <div class="property-group">
+                        <label>当前选中</label>
+                        <div class="selected-name" id="selectedName">未选中纹样</div>
+                    </div>
+
+                    <div class="property-group">
+                        <label>器物配色方案</label>
+                        <select id="colorSchemeInput">
+                            <option value="original">原色</option>
+                            <option value="red_gold">红金色系</option>
+                            <option value="green_blue">青绿色系</option>
+                            <option value="black_white">黑白灰系</option>
+                        </select>
+                    </div>
+
+                    <div class="property-group">
+                        <label>背景颜色</label>
+                        <input type="color" id="bgColorInput" value="#FDF5E6">
+                    </div>
+
+                    <div class="property-group">
+                        <label>纹样颜色</label>
+                        <input type="color" id="patternColorInput" value="#6b3f23">
+                    </div>
+
+                    <div class="property-group">
+                        <label>透明度</label>
+                        <input type="range" id="opacityInput" min="0.1" max="1" step="0.1" value="1">
+                        <div class="range-value" id="opacityValue">1.0</div>
+                    </div>
+
+                    <div class="property-group">
+                        <label>图层顺序</label>
+                        <div class="layer-controls">
+                            <button id="bringFrontBtn" class="tool-btn small">置顶</button>
+                            <button id="sendBackBtn" class="tool-btn small">置底</button>
+                        </div>
+                    </div>
+
+                    <div class="property-group">
+                        <label>缩放 / 旋转方式</label>
+                        <div class="interaction-tip">
+                            <strong>请直接在画布中操作：</strong><br>
+                            1. 点击纹样后会出现控制点<br>
+                            2. 拖动顶部圆点可旋转<br>
+                            3. 拖动右下角圆点可缩放
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedPattern = null;
+let canvasPatterns = [];
+let systemPatterns = [];
+let userPatterns = [];
+let patternCounter = 0;
+let currentMaxZIndex = 5;
+
+let isAuthenticatedUser = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
+
+const LOGIN_URL = '/accounts/login/?next=/design/';
+const placeholderImage = "{% static 'images/placeholder.jpg' %}";
+const DEFAULT_PATTERN_COLOR = '#6b3f23';
+const AUTH_CACHE_TTL = 60000;
+
+const BASE_MODEL_COLOR_OPTIONS = {
+    canvas: [{ value: 'original', label: '原色' }],
+    plate: [{ value: 'original', label: '原色' }],
+    vase: [
+        { value: 'original', label: '原色' },
+        { value: 'red_gold', label: '红金色系' },
+        { value: 'green_blue', label: '青绿色系' },
+        { value: 'black_white', label: '黑白灰系' }
+    ],
+    default: [{ value: 'original', label: '原色' }]
+};
+
+const dom = {
+    patternSearch: document.getElementById('patternSearch'),
+    uploadPatternInput: document.getElementById('uploadPatternInput'),
+    uploadPatternBtn: document.getElementById('uploadPatternBtn'),
+    uploadStatus: document.getElementById('uploadStatus'),
+    autoCutoutGroup: document.getElementById('autoCutoutGroup'),
+    systemPatternList: document.getElementById('systemPatternList'),
+    userPatternList: document.getElementById('userPatternList'),
+    designNameInput: document.getElementById('designNameInput'),
+    baseModelSelect: document.getElementById('baseModelSelect'),
+    isPublicInput: document.getElementById('isPublicInput'),
+    clearCanvasBtn: document.getElementById('clearCanvasBtn'),
+    deleteSelectedBtn: document.getElementById('deleteSelectedBtn'),
+    exportBtn: document.getElementById('exportBtn'),
+    saveDesignBtn: document.getElementById('saveDesignBtn'),
+    designCanvas: document.getElementById('designCanvas'),
+    canvasContent: document.getElementById('canvasContent'),
+    baseModelImage: document.getElementById('baseModelImage'),
+    canvasPlaceholder: document.getElementById('canvasPlaceholder'),
+    selectedName: document.getElementById('selectedName'),
+    colorSchemeInput: document.getElementById('colorSchemeInput'),
+    bgColorInput: document.getElementById('bgColorInput'),
+    patternColorInput: document.getElementById('patternColorInput'),
+    opacityInput: document.getElementById('opacityInput'),
+    opacityValue: document.getElementById('opacityValue'),
+    bringFrontBtn: document.getElementById('bringFrontBtn'),
+    sendBackBtn: document.getElementById('sendBackBtn')
+};
+
+const authCache = {
+    checkedAt: 0,
+    is_logged_in: isAuthenticatedUser
+};
+
+const VASE_COLOR_SCHEMES = {
+    original: {
+        mouth: '#d8cbb8',
+        bodyMain: '#f3ecdf',
+        bodySub: '#e7dcc9',
+        outline: '#bfa98c',
+        detail: '#cbb89e'
+    },
+    red_gold: {
+        mouth: '#c9a35f',
+        bodyMain: '#b6432f',
+        bodySub: '#d8b56a',
+        outline: '#8e3a2c',
+        detail: '#d9bf7a'
+    },
+    green_blue: {
+        mouth: '#8bb59a',
+        bodyMain: '#2f7f73',
+        bodySub: '#6ea7a0',
+        outline: '#2f5f5d',
+        detail: '#9bc5b2'
+    },
+    black_white: {
+        mouth: '#8a8a8a',
+        bodyMain: '#4a4a4a',
+        bodySub: '#bdbdbd',
+        outline: '#3f3f3f',
+        detail: '#d4d4d4'
+    }
+};
+
+function getVaseSchemeColors(scheme = 'original') {
+    return VASE_COLOR_SCHEMES[scheme] || VASE_COLOR_SCHEMES.original;
+}
+
+function clearLocalAuth() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('email');
+}
+
+function getCookie(name) {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(name + '='));
+    return cookieValue ? decodeURIComponent(cookieValue.split('=')[1]) : null;
+}
+
+function getAuthHeaders(includeJson = false) {
+    const headers = {};
+    const token = localStorage.getItem('token');
+
+    if (token) {
+        headers['Authorization'] = `Token ${token}`;
+    }
+
+    if (includeJson) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    const csrfToken = getCookie('csrftoken');
+    if (csrfToken) {
+        headers['X-CSRFToken'] = csrfToken;
+    }
+
+    return headers;
+}
+
+function requireLogin(message = '请先登录后再使用设计功能') {
+    alert(message);
+    window.location.href = LOGIN_URL;
+}
+
+async function checkLoginStatus() {
+    try {
+        const response = await fetch('/api/user/status/', {
+            method: 'GET',
+            headers: getAuthHeaders(),
+            credentials: 'include'
+        });
+
+        const data = await response.json().catch(() => ({}));
+        return {
+            raw: data,
+            is_logged_in: !!(data.is_logged_in || data.is_authenticated)
+        };
+    } catch (error) {
+        console.error('获取登录状态失败:', error);
+        return {
+            raw: null,
+            is_logged_in: false
+        };
+    }
+}
+
+async function refreshAuthState(force = false) {
+    const now = Date.now();
+
+    if (!force && (now - authCache.checkedAt) < AUTH_CACHE_TTL) {
+        isAuthenticatedUser = !!authCache.is_logged_in;
+        return isAuthenticatedUser;
+    }
+
+    const loginStatus = await checkLoginStatus();
+    authCache.checkedAt = now;
+    authCache.is_logged_in = !!loginStatus.is_logged_in;
+    isAuthenticatedUser = !!loginStatus.is_logged_in;
+
+    if (!isAuthenticatedUser) {
+        clearLocalAuth();
+    }
+
+    return isAuthenticatedUser;
+}
+
+async function withAuth(action, message = '请先登录后再操作') {
+    const authed = await refreshAuthState(false);
+    if (!authed) {
+        requireLogin(message);
+        return false;
+    }
+
+    if (typeof action === 'function') {
+        await action();
+    }
+
+    return true;
+}
+
+function createModelSvg(type, scheme = 'original') {
+    const svgs = {
+        vase: `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+                <defs>
+                    <linearGradient id="vaseBodyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="${getVaseSchemeColors(scheme).bodySub}" />
+                        <stop offset="32%" stop-color="${getVaseSchemeColors(scheme).bodyMain}" />
+                        <stop offset="72%" stop-color="${getVaseSchemeColors(scheme).bodyMain}" />
+                        <stop offset="100%" stop-color="${getVaseSchemeColors(scheme).bodySub}" />
+                    </linearGradient>
+
+                    <linearGradient id="vaseMouthGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="${getVaseSchemeColors(scheme).detail}" />
+                        <stop offset="100%" stop-color="${getVaseSchemeColors(scheme).mouth}" />
+                    </linearGradient>
+                </defs>
+
+                <rect width="100%" height="100%" fill="transparent"/>
+
+                <path d="
+                    M178 120
+                    C178 112, 176 106, 172 102
+                    C156 88, 147 75, 147 60
+                    C160 48, 240 48, 253 60
+                    C253 75, 244 88, 228 102
+                    C224 106, 222 112, 222 120
+                    C222 130, 222 138, 222 146
+                    C270 168, 302 228, 302 297
+                    C302 364, 268 392, 200 396
+                    C132 392, 98 364, 98 297
+                    C98 228, 130 168, 178 146
+                    C178 138, 178 130, 178 120
+                    Z"
+                    fill="url(#vaseBodyGradient)"
+                    stroke="${getVaseSchemeColors(scheme).outline}"
+                    stroke-width="3.5"
+                    stroke-linejoin="round"/>
+
+                <path d="
+                    M146 60
+                    C160 48, 240 48, 254 60
+                    L254 72
+                    C240 81, 160 81, 146 72
+                    Z"
+                    fill="url(#vaseMouthGradient)"
+                    stroke="${getVaseSchemeColors(scheme).outline}"
+                    stroke-width="3"
+                    stroke-linejoin="round"/>
+
+                <path d="M156 74 C172 81, 228 81, 244 74"
+                    fill="none"
+                    stroke="${getVaseSchemeColors(scheme).detail}"
+                    stroke-width="2.5"
+                    stroke-linecap="round"/>
+
+                <path d="
+                    M172 102
+                    C182 96, 218 96, 228 102
+                    C224 108, 222 114, 222 120
+                    L222 146
+                    C214 142, 186 142, 178 146
+                    L178 120
+                    C178 114, 176 108, 172 102
+                    Z"
+                    fill="${getVaseSchemeColors(scheme).mouth}"
+                    stroke="${getVaseSchemeColors(scheme).outline}"
+                    stroke-width="2.5"
+                    stroke-linejoin="round"/>
+
+                <path d="M178 146 C190 142, 210 142, 222 146"
+                    fill="none"
+                    stroke="${getVaseSchemeColors(scheme).detail}"
+                    stroke-width="2.5"
+                    stroke-linecap="round"/>
+
+                <path d="M136 382 C160 388, 240 388, 264 382"
+                    fill="none"
+                    stroke="${getVaseSchemeColors(scheme).detail}"
+                    stroke-width="2.5"
+                    stroke-linecap="round"/>
+            </svg>
+        `,
+        plate: `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+                <defs>
+                    <radialGradient id="plateOuter" cx="50%" cy="42%" r="60%">
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="68%" stop-color="#f8f9fb"/>
+                        <stop offset="100%" stop-color="#e8edf3"/>
+                    </radialGradient>
+                    <radialGradient id="plateInner" cx="50%" cy="40%" r="58%">
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="78%" stop-color="#f7f8fa"/>
+                        <stop offset="100%" stop-color="#eef2f6"/>
+                    </radialGradient>
+                    <radialGradient id="plateCenter" cx="50%" cy="40%" r="55%">
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="100%" stop-color="#f2f5f8"/>
+                    </radialGradient>
+                </defs>
+
+                <circle cx="200" cy="200" r="145" fill="url(#plateOuter)" stroke="#cfd7e3" stroke-width="10"/>
+                <circle cx="200" cy="200" r="106" fill="url(#plateInner)" stroke="#dde4ec" stroke-width="5"/>
+                <circle cx="200" cy="200" r="30" fill="url(#plateCenter)" opacity="0.98"/>
+            </svg>
+        `
+    };
+
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgs[type] || '');
+}
+
+const baseModelMap = {
+    canvas: { name: '画布' },
+    vase: { name: '花瓶' },
+    plate: { name: '瓷盘' }
+};
+
+function getBaseModelSrc(modelType, scheme = 'original') {
+    if (modelType === 'canvas') return '';
+    if (modelType === 'vase') return createModelSvg('vase', scheme);
+    if (modelType === 'plate') return createModelSvg('plate', 'original');
+    return '';
+}
+
+function syncBaseModelColorSchemeOptions(modelType) {
+    const select = dom.colorSchemeInput;
+    if (!select) return;
+
+    const options = BASE_MODEL_COLOR_OPTIONS[modelType] || BASE_MODEL_COLOR_OPTIONS.default;
+    const previousValue = select.value;
+    const hasPrevious = options.some(item => item.value === previousValue);
+    const nextValue = hasPrevious ? previousValue : options[0].value;
+
+    select.innerHTML = options.map(item => `<option value="${item.value}">${item.label}</option>`).join('');
+    select.value = nextValue;
+    select.disabled = options.length === 1;
+}
+
+function updateBaseModelAppearance() {
+    if (!dom.baseModelImage || !dom.baseModelImage.dataset.modelType) return;
+
+    const scheme = dom.colorSchemeInput?.value || 'original';
+    const modelType = dom.baseModelImage.dataset.modelType;
+
+    if (modelType === 'canvas') {
+        dom.baseModelImage.src = '';
+        dom.baseModelImage.style.display = 'none';
+        return;
+    }
+
+    dom.baseModelImage.src = getBaseModelSrc(modelType, scheme);
+    dom.baseModelImage.style.display = 'block';
+}
+
+function hidePlaceholder() {
+    if (dom.canvasPlaceholder) {
+        dom.canvasPlaceholder.style.display = 'none';
+    }
+}
+
+function maybeShowPlaceholder() {
+    if (!dom.canvasPlaceholder) return;
+
+    const hasPatterns = canvasPatterns.length > 0;
+    const hasBaseModel = !!(dom.baseModelImage && dom.baseModelImage.dataset.modelType);
+    dom.canvasPlaceholder.style.display = (hasPatterns || hasBaseModel) ? 'none' : 'flex';
+}
+
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function escapeAttr(text) {
+    return escapeHtml(text);
+}
+
+function debounce(fn, wait = 180) {
+    let timer = null;
+    return function (...args) {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => fn.apply(this, args), wait);
+    };
+}
+
+function setUploadStatus(message = '', isError = false) {
+    if (!dom.uploadStatus) return;
+    dom.uploadStatus.textContent = message;
+    dom.uploadStatus.style.color = isError ? '#b53b2d' : '#666';
+}
+
+function validateImageFile(file) {
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024;
+
+    if (!file) {
+        return { ok: false, message: '请先选择图片' };
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+        return { ok: false, message: '请上传 PNG、JPG 或 WEBP 格式图片' };
+    }
+
+    if (file.size > maxSize) {
+        return { ok: false, message: '图片不能超过 5MB' };
+    }
+
+    return { ok: true };
+}
+
+function getImageMeta(file) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+
+        img.onload = () => {
+            resolve({
+                width: img.width,
+                height: img.height
+            });
+            URL.revokeObjectURL(objectUrl);
+        };
+
+        img.onerror = () => {
+            reject(new Error('无法读取图片尺寸'));
+            URL.revokeObjectURL(objectUrl);
+        };
+
+        img.src = objectUrl;
+    });
+}
+
+function getAutoCutoutValue() {
+    const checked = document.querySelector('input[name="autoCutout"]:checked');
+    return checked ? checked.value === 'true' : true;
+}
+
+async function uploadAndExtractPattern() {
+    const ok = await withAuth(null, '请先登录后再上传图片');
+    if (!ok) return;
+
+    const file = dom.uploadPatternInput?.files?.[0];
+    const autoCutout = getAutoCutoutValue();
+    const basicCheck = validateImageFile(file);
+
+    if (!basicCheck.ok) {
+        setUploadStatus(basicCheck.message, true);
+        if (dom.uploadPatternInput) dom.uploadPatternInput.value = '';
+        return;
+    }
+
+    try {
+        const meta = await getImageMeta(file);
+        if (meta.width < 300 || meta.height < 300) {
+            setUploadStatus('图片尺寸过小，请上传至少 300×300 的图片', true);
+            if (dom.uploadPatternInput) dom.uploadPatternInput.value = '';
+            return;
+        }
+    } catch (error) {
+        setUploadStatus('图片读取失败，请重新选择', true);
+        if (dom.uploadPatternInput) dom.uploadPatternInput.value = '';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('auto_cutout', autoCutout ? 'true' : 'false');
+
+    setUploadStatus(autoCutout ? '正在上传并自动抠图，请稍候...' : '正在上传原图，请稍候...');
+
+    try {
+        const response = await fetch('/api/patterns/extract/', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: formData,
+            credentials: 'include'
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (response.status === 401) {
+            clearLocalAuth();
+            authCache.checkedAt = 0;
+            authCache.is_logged_in = false;
+            requireLogin('登录状态已失效，请重新登录');
+            return;
+        }
+
+        if (!response.ok || !result.success) {
+            setUploadStatus(result.message || '上传失败，请重新尝试', true);
+            if (dom.uploadPatternInput) dom.uploadPatternInput.value = '';
+            return;
+        }
+
+        userPatterns.unshift({
+            id: result.id || Date.now(),
+            name: result.name || '我的纹样',
+            meaning: result.meaning || (autoCutout ? '用户上传（自动抠图）' : '用户上传（原图）'),
+            source: 'user',
+            thumbnail: result.thumbnail || result.image || placeholderImage,
+            auto_cutout: typeof result.auto_cutout === 'boolean' ? result.auto_cutout : autoCutout
+        });
+
+        renderSearchResults(dom.patternSearch?.value || '');
+        setUploadStatus(autoCutout ? '上传成功，已按“自动抠图”方式保存到我的纹样' : '上传成功，已按“原图”方式保存到我的纹样');
+
+        if (dom.uploadPatternInput) {
+            dom.uploadPatternInput.value = '';
+        }
+    } catch (error) {
+        console.error('上传失败:', error);
+        setUploadStatus('上传失败，请检查网络连接后重试', true);
+    }
+}
+
+async function loadPatterns() {
+    try {
+        const headers = getAuthHeaders();
+
+        const [userResponse, systemResponse] = await Promise.all([
+            fetch('/api/patterns/user-patterns/', {
+                method: 'GET',
+                headers,
+                credentials: 'include'
+            }),
+            fetch('/api/patterns/system-patterns/', {
+                method: 'GET',
+                headers,
+                credentials: 'include'
+            })
+        ]);
+
+        const [userData, systemData] = await Promise.all([
+            userResponse.json().catch(() => ({})),
+            systemResponse.json().catch(() => ({}))
+        ]);
+
+        userPatterns = Array.isArray(userData.results) ? userData.results : [];
+        systemPatterns = Array.isArray(systemData.results) ? systemData.results : [];
+
+        renderPatternList();
+    } catch (error) {
+        console.error('加载纹样失败:', error);
+        if (dom.systemPatternList) {
+            dom.systemPatternList.innerHTML = '<div class="empty-text">系统纹样加载失败</div>';
+        }
+        if (dom.userPatternList) {
+            dom.userPatternList.innerHTML = '<div class="empty-text">用户纹样加载失败</div>';
+        }
+    }
+}
+
+function getUserPatternStatusBadge(pattern) {
+    if (typeof pattern.auto_cutout !== 'boolean') return '';
+    if (pattern.auto_cutout) {
+        return '<div class="pattern-badge pattern-badge-user">已抠图</div>';
+    }
+    return '<div class="pattern-badge pattern-badge-plain">原图</div>';
+}
+
+function renderPatternItems(container, patterns, emptyText = '暂无纹样', showManage = false, isUserPattern = false) {
+    if (!container) return;
+
+    if (!patterns || patterns.length === 0) {
+        container.innerHTML = `<div class="empty-text">${emptyText}</div>`;
+        return;
+    }
+
+    container.innerHTML = patterns.map(pattern => {
+        const thumbnail = pattern.image || pattern.thumbnail || placeholderImage;
+        const displayName = pattern.name || '未命名纹样';
+        const safeName = escapeHtml(displayName);
+        const encodedName = encodeURIComponent(displayName);
+        const userStatusBadge = isUserPattern ? getUserPatternStatusBadge(pattern) : '';
+
+        return `
+            <div class="pattern-item"
+                data-id="${escapeAttr(pattern.id)}"
+                data-encoded-name="${encodedName}"
+                data-thumbnail="${escapeAttr(thumbnail)}">
+                <img src="${escapeAttr(thumbnail)}"
+                     alt="${safeName}"
+                     loading="lazy"
+                     decoding="async"
+                     onerror="this.src='${placeholderImage}'">
+                <div class="pattern-item-name">
+                    ${safeName}
+                    ${!isUserPattern ? '<div class="pattern-badge">系统预置</div>' : ''}
+                    ${userStatusBadge}
+                    ${showManage && isUserPattern ? `
+                        <div class="pattern-manage">
+                            <button class="manage-btn rename-btn" type="button" title="重命名">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="manage-btn delete-btn" type="button" title="删除">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderPatternList() {
+    renderPatternItems(dom.systemPatternList, systemPatterns, '暂无系统纹样', false, false);
+    renderPatternItems(dom.userPatternList, userPatterns, '暂未上传纹样', true, true);
+}
+
+function renderSearchResults(keyword) {
+    const normalized = (keyword || '').trim().toLowerCase();
+
+    if (!normalized) {
+        renderPatternList();
+        return;
+    }
+
+    const filterFn = (item) => {
+        const name = (item.name || '').toLowerCase();
+        const meaning = (item.meaning || '').toLowerCase();
+        const source = (item.source || '').toLowerCase();
+        return name.includes(normalized) || meaning.includes(normalized) || source.includes(normalized);
+    };
+
+    renderPatternItems(dom.systemPatternList, systemPatterns.filter(filterFn), '系统纹样中暂无匹配结果', false, false);
+    renderPatternItems(dom.userPatternList, userPatterns.filter(filterFn), '我的纹样中暂无匹配结果', true, true);
+}
+
+async function renamePattern(patternId, currentName) {
+    const newName = prompt('请输入新的纹样名称：', currentName);
+    if (!newName || newName === currentName) return;
+
+    try {
+        const response = await fetch(`/api/patterns/user-patterns/${patternId}/`, {
+            method: 'PATCH',
+            headers: getAuthHeaders(true),
+            credentials: 'include',
+            body: JSON.stringify({ name: newName })
+        });
+
+        if (response.ok) {
+            alert('重命名成功！');
+            await loadPatterns();
+        } else {
+            alert('重命名失败，请重试');
+        }
+    } catch (error) {
+        console.error('重命名失败:', error);
+        alert('网络错误，请重试');
+    }
+}
+
+async function deletePattern(patternId) {
+    if (!confirm('确定要删除这个纹样吗？删除后无法恢复！')) return;
+
+    try {
+        const response = await fetch(`/api/patterns/user-patterns/${patternId}/`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            alert('删除成功！');
+            await loadPatterns();
+        } else {
+            alert('删除失败，请重试');
+        }
+    } catch (error) {
+        console.error('删除失败:', error);
+        alert('网络错误，请重试');
+    }
+}
+
+function getPatternColorInputValue() {
+    return dom.patternColorInput?.value || DEFAULT_PATTERN_COLOR;
+}
+
+function updatePatternAppearance(element) {
+    const img = element?.querySelector('.pattern-source');
+    const layer = element?.querySelector('.pattern-render-layer');
+    if (!img || !layer) return;
+
+    const src = img.currentSrc || img.src || '';
+    if (!src) return;
+
+    const patternColor = element.dataset.patternColor || DEFAULT_PATTERN_COLOR;
+    layer.style.backgroundColor = patternColor;
+    layer.style.webkitMaskImage = `url("${src}")`;
+    layer.style.maskImage = `url("${src}")`;
+}
+
+function getPatternData(element) {
+    return {
+        x: parseFloat(element.dataset.x || '0'),
+        y: parseFloat(element.dataset.y || '0'),
+        width: parseFloat(element.dataset.width || '150'),
+        height: parseFloat(element.dataset.height || '150'),
+        scale: parseFloat(element.dataset.scale || '1'),
+        rotate: parseFloat(element.dataset.rotate || '0'),
+        opacity: parseFloat(element.dataset.opacity || '1')
+    };
+}
+
+function setPatternData(element, data = {}) {
+    if (data.x !== undefined) element.dataset.x = String(data.x);
+    if (data.y !== undefined) element.dataset.y = String(data.y);
+    if (data.width !== undefined) element.dataset.width = String(data.width);
+    if (data.height !== undefined) element.dataset.height = String(data.height);
+    if (data.scale !== undefined) element.dataset.scale = String(data.scale);
+    if (data.rotate !== undefined) element.dataset.rotate = String(data.rotate);
+    if (data.opacity !== undefined) element.dataset.opacity = String(data.opacity);
+}
+
+function updatePatternVisual(element) {
+    const data = getPatternData(element);
+    element.style.left = `${data.x}px`;
+    element.style.top = `${data.y}px`;
+    element.style.width = `${data.width}px`;
+    element.style.height = `${data.height}px`;
+    element.style.opacity = String(data.opacity);
+    element.style.transform = `translate3d(-50%, -50%, 0) rotate(${data.rotate}deg) scale(${data.scale})`;
+}
+
+function clampDataToCanvas(data, canvasWidth, canvasHeight) {
+    const next = { ...data };
+
+    const halfW = (next.width * next.scale) / 2;
+    const halfH = (next.height * next.scale) / 2;
+
+    next.x = Math.max(halfW, Math.min(next.x, canvasWidth - halfW));
+    next.y = Math.max(halfH, Math.min(next.y, canvasHeight - halfH));
+
+    return next;
+}
+
+function clampPatternToCanvas(element) {
+    const data = getPatternData(element);
+    const next = clampDataToCanvas(data, dom.canvasContent.clientWidth, dom.canvasContent.clientHeight);
+    setPatternData(element, next);
+    updatePatternVisual(element);
+}
+
+function syncProperties(element) {
+    if (!element) {
+        if (dom.selectedName) dom.selectedName.textContent = '未选中纹样';
+        return;
+    }
+
+    const data = getPatternData(element);
+
+    if (dom.selectedName) {
+        dom.selectedName.textContent = element.dataset.name || '未命名纹样';
+    }
+
+    if (dom.patternColorInput) {
+        dom.patternColorInput.value = element.dataset.patternColor || DEFAULT_PATTERN_COLOR;
+    }
+
+    if (dom.opacityInput) {
+        dom.opacityInput.value = String(data.opacity);
+    }
+
+    if (dom.opacityValue) {
+        dom.opacityValue.textContent = data.opacity.toFixed(1);
+    }
+}
+
+function clearSelection() {
+    if (selectedPattern) {
+        selectedPattern.classList.remove('selected');
+        selectedPattern = null;
+    }
+    syncProperties(null);
+}
+
+function selectPattern(element) {
+    if (!element) return;
+
+    if (selectedPattern && selectedPattern !== element) {
+        selectedPattern.classList.remove('selected');
+    }
+
+    element.classList.add('selected');
+    selectedPattern = element;
+    syncProperties(element);
+}
+
+function getCanvasCenter() {
+    return {
+        x: dom.canvasContent.clientWidth / 2,
+        y: dom.canvasContent.clientHeight / 2
+    };
+}
+
+function addToCanvas(id, thumbnail, name) {
+    hidePlaceholder();
+
+    const patternDiv = document.createElement('div');
+    const instanceId = `pattern_${++patternCounter}`;
+    const center = getCanvasCenter();
+    const currentOpacity = parseFloat(dom.opacityInput?.value || '1');
+    const currentPatternColor = getPatternColorInputValue();
+    const safeAlt = escapeHtml(name || '未命名纹样');
+
+    patternDiv.className = 'canvas-pattern';
+    patternDiv.style.zIndex = String(++currentMaxZIndex);
+
+    patternDiv.dataset.instanceId = instanceId;
+    patternDiv.dataset.id = id;
+    patternDiv.dataset.name = name;
+    patternDiv.dataset.scale = '1';
+    patternDiv.dataset.rotate = '0';
+    patternDiv.dataset.opacity = String(currentOpacity);
+    patternDiv.dataset.width = '150';
+    patternDiv.dataset.height = '150';
+    patternDiv.dataset.x = String(center.x);
+    patternDiv.dataset.y = String(center.y);
+    patternDiv.dataset.patternColor = currentPatternColor;
+
+    patternDiv.innerHTML = `
+        <div class="pattern-render-layer"></div>
+        <img class="pattern-source" src="${escapeAttr(thumbnail || placeholderImage)}" alt="${safeAlt}" decoding="async" crossorigin="anonymous" onerror="this.src='${placeholderImage}'">
+        <span class="transform-handle rotate-handle" title="拖动旋转"></span>
+        <span class="transform-handle scale-handle" title="拖动缩放"></span>
+    `;
+
+    const img = patternDiv.querySelector('.pattern-source');
+    if (img) {
+        img.addEventListener('load', () => updatePatternAppearance(patternDiv), { once: true });
+    }
+
+    attachPatternInteractions(patternDiv);
+
+    patternDiv.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectPattern(patternDiv);
+    });
+
+    dom.canvasContent.appendChild(patternDiv);
+    canvasPatterns.push(patternDiv);
+
+    updatePatternVisual(patternDiv);
+    updatePatternAppearance(patternDiv);
+    selectPattern(patternDiv);
+}
+
+function startTransform(element, mode, startEvent) {
+    const startData = getPatternData(element);
+    const canvasWidth = dom.canvasContent.clientWidth;
+    const canvasHeight = dom.canvasContent.clientHeight;
+    const canvasRect = dom.canvasContent.getBoundingClientRect();
+
+    const startX = startEvent.clientX;
+    const startY = startEvent.clientY;
+
+    const centerX = canvasRect.left + startData.x;
+    const centerY = canvasRect.top + startData.y;
+    const startAngle = Math.atan2(startY - centerY, startX - centerX) * 180 / Math.PI;
+    const startRotate = startData.rotate;
+    const startDistance = Math.hypot(startX - centerX, startY - centerY);
+    const startScale = startData.scale;
+
+    let pendingData = { ...startData };
+    let rafId = null;
+
+    const render = () => {
+        rafId = null;
+        setPatternData(element, pendingData);
+        updatePatternVisual(element);
+    };
+
+    const scheduleRender = () => {
+        if (rafId !== null) return;
+        rafId = requestAnimationFrame(render);
+    };
+
+    const onMove = (ev) => {
+        if (mode === 'drag') {
+            const dx = ev.clientX - startX;
+            const dy = ev.clientY - startY;
+            pendingData = clampDataToCanvas({
+                ...startData,
+                x: startData.x + dx,
+                y: startData.y + dy
+            }, canvasWidth, canvasHeight);
+        } else if (mode === 'rotate') {
+            const currentAngle = Math.atan2(ev.clientY - centerY, ev.clientX - centerX) * 180 / Math.PI;
+            pendingData = {
+                ...startData,
+                rotate: startRotate + (currentAngle - startAngle)
+            };
+        } else if (mode === 'scale') {
+            const currentDistance = Math.hypot(ev.clientX - centerX, ev.clientY - centerY);
+            let nextScale = startScale * (currentDistance / Math.max(startDistance, 1));
+            nextScale = Math.max(0.3, Math.min(nextScale, 4));
+
+            pendingData = clampDataToCanvas({
+                ...startData,
+                scale: nextScale
+            }, canvasWidth, canvasHeight);
+        }
+
+        scheduleRender();
+    };
+
+    const onUp = () => {
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+
+        if (rafId !== null) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+
+        setPatternData(element, pendingData);
+        updatePatternVisual(element);
+        syncProperties(element);
+    };
+
+    document.addEventListener('pointermove', onMove, { passive: true });
+    document.addEventListener('pointerup', onUp, { passive: true });
+}
+
+function attachPatternInteractions(element) {
+    const rotateHandle = element.querySelector('.rotate-handle');
+    const scaleHandle = element.querySelector('.scale-handle');
+
+    element.addEventListener('pointerdown', async (e) => {
+        if (e.target === rotateHandle || e.target === scaleHandle) return;
+
+        const ok = await withAuth(null, '请先登录后再编辑设计');
+        if (!ok) return;
+        if (e.button !== 0 && e.pointerType !== 'touch') return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        selectPattern(element);
+        startTransform(element, 'drag', e);
+    });
+
+    if (rotateHandle) {
+        rotateHandle.addEventListener('pointerdown', async (e) => {
+            const ok = await withAuth(null, '请先登录后再编辑设计');
+            if (!ok) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            selectPattern(element);
+            startTransform(element, 'rotate', e);
+        });
+    }
+
+    if (scaleHandle) {
+        scaleHandle.addEventListener('pointerdown', async (e) => {
+            const ok = await withAuth(null, '请先登录后再编辑设计');
+            if (!ok) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            selectPattern(element);
+            startTransform(element, 'scale', e);
+        });
+    }
+}
+
+function clearCanvas() {
+    canvasPatterns.forEach(item => item.remove());
+    canvasPatterns = [];
+    selectedPattern = null;
+
+    if (dom.baseModelImage) {
+        dom.baseModelImage.src = '';
+        dom.baseModelImage.style.display = 'none';
+        dom.baseModelImage.dataset.modelType = '';
+        dom.baseModelImage.dataset.modelName = '';
+    }
+
+    if (dom.baseModelSelect) {
+        dom.baseModelSelect.value = '';
+    }
+
+    syncBaseModelColorSchemeOptions('');
+    syncProperties(null);
+    maybeShowPlaceholder();
+}
+
+function collectDesignData() {
+    return {
+        canvas: {
+            width: dom.designCanvas?.clientWidth || 900,
+            height: dom.designCanvas?.clientHeight || 600,
+            background: dom.bgColorInput?.value || '#FDF5E6'
+        },
+        base_model: {
+            type: dom.baseModelImage?.dataset.modelType || '',
+            name: dom.baseModelImage?.dataset.modelName || '',
+            image: dom.baseModelImage?.src || '',
+            color_scheme: dom.colorSchemeInput?.value || 'original'
+        },
+        elements: canvasPatterns.map(item => ({
+            instance_id: item.dataset.instanceId,
+            pattern_id: item.dataset.id,
+            name: item.dataset.name,
+            src: item.querySelector('.pattern-source')?.src || '',
+            x: item.dataset.x || '0',
+            y: item.dataset.y || '0',
+            width: item.dataset.width || '150',
+            height: item.dataset.height || '150',
+            scale: item.dataset.scale || '1',
+            rotate: item.dataset.rotate || '0',
+            opacity: item.dataset.opacity || '1',
+            pattern_color: item.dataset.patternColor || DEFAULT_PATTERN_COLOR,
+            z_index: item.style.zIndex || '5'
+        }))
+    };
+}
+
+function downloadJson(filename, data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+function waitForImagesToLoad(images) {
+    return Promise.all(images.map(img => new Promise((resolve, reject) => {
+        if (img.complete && img.naturalWidth > 0) {
+            resolve();
+        } else {
+            const onLoad = () => {
+                cleanup();
+                resolve();
+            };
+            const onError = () => {
+                cleanup();
+                reject(new Error(`图片加载失败: ${img.src}`));
+            };
+            const cleanup = () => {
+                img.removeEventListener('load', onLoad);
+                img.removeEventListener('error', onError);
+            };
+            img.addEventListener('load', onLoad);
+            img.addEventListener('error', onError);
+        }
+    })));
+}
+
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        if (!src) {
+            reject(new Error('缺少图片地址'));
+            return;
+        }
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`图片加载失败: ${src}`));
+        img.src = src;
+    });
+}
+
+function hexToRgb(hex) {
+    const normalized = (hex || '').replace('#', '').trim();
+    if (!normalized) return { r: 107, g: 63, b: 35 };
+
+    const full = normalized.length === 3
+        ? normalized.split('').map(ch => ch + ch).join('')
+        : normalized;
+
+    const value = parseInt(full, 16);
+    if (Number.isNaN(value)) {
+        return { r: 107, g: 63, b: 35 };
+    }
+
+    return {
+        r: (value >> 16) & 255,
+        g: (value >> 8) & 255,
+        b: value & 255
+    };
+}
+
+const tintedPatternCache = new Map();
+
+function getTintedPatternCacheKey(src, color, targetWidth, targetHeight) {
+    return [src, color, targetWidth, targetHeight].join('__');
+}
+
+async function createTintedPatternCanvas(src, color, targetWidth, targetHeight) {
+    const safeWidth = Math.max(1, Math.round(targetWidth));
+    const safeHeight = Math.max(1, Math.round(targetHeight));
+    const cacheKey = getTintedPatternCacheKey(src, color, safeWidth, safeHeight);
+
+    if (tintedPatternCache.has(cacheKey)) {
+        return tintedPatternCache.get(cacheKey);
+    }
+
+    const sourceImg = await loadImage(src);
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = safeWidth;
+    offCanvas.height = safeHeight;
+
+    const ctx = offCanvas.getContext('2d');
+    ctx.clearRect(0, 0, safeWidth, safeHeight);
+
+    const scale = Math.min(safeWidth / sourceImg.naturalWidth, safeHeight / sourceImg.naturalHeight);
+    const drawWidth = sourceImg.naturalWidth * scale;
+    const drawHeight = sourceImg.naturalHeight * scale;
+    const drawX = (safeWidth - drawWidth) / 2;
+    const drawY = (safeHeight - drawHeight) / 2;
+
+    ctx.drawImage(sourceImg, drawX, drawY, drawWidth, drawHeight);
+
+    const imageData = ctx.getImageData(0, 0, safeWidth, safeHeight);
+    const data = imageData.data;
+    const { r, g, b } = hexToRgb(color);
+
+    for (let i = 0; i < data.length; i += 4) {
+        const alpha = data[i + 3];
+        if (alpha === 0) continue;
+        data[i] = r;
+        data[i + 1] = g;
+        data[i + 2] = b;
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    tintedPatternCache.set(cacheKey, offCanvas);
+
+    return offCanvas;
+}
+
+function getCanvasExportSize() {
+    const rect = dom.canvasContent.getBoundingClientRect();
+    const width = Math.max(1, Math.round(rect.width));
+    const height = Math.max(1, Math.round(rect.height));
+    return { width, height };
+}
+
+async function renderDesignToCanvas(scale = 4) {
+    const { width, height } = getCanvasExportSize();
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = Math.round(width * scale);
+    exportCanvas.height = Math.round(height * scale);
+
+    const ctx = exportCanvas.getContext('2d');
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.scale(scale, scale);
+
+    const background = dom.bgColorInput?.value || '#FDF5E6';
+    ctx.fillStyle = background;
+    ctx.fillRect(0, 0, width, height);
+
+    const baseModelType = dom.baseModelImage?.dataset.modelType || '';
+    const baseModelDisplay = window.getComputedStyle(dom.baseModelImage).display;
+
+    if (baseModelType && baseModelType !== 'canvas' && baseModelDisplay !== 'none') {
+        const baseRect = {
+            width: dom.baseModelImage.offsetWidth || 360,
+            height: dom.baseModelImage.offsetHeight || 360,
+            x: (width - (dom.baseModelImage.offsetWidth || 360)) / 2,
+            y: (height - (dom.baseModelImage.offsetHeight || 360)) / 2
+        };
+
+        const baseSrc = dom.baseModelImage.src || getBaseModelSrc(baseModelType, dom.colorSchemeInput?.value || 'original');
+        if (baseSrc) {
+            const baseImg = await loadImage(baseSrc);
+            const prevAlpha = ctx.globalAlpha;
+            ctx.globalAlpha = 0.95;
+            ctx.drawImage(baseImg, baseRect.x, baseRect.y, baseRect.width, baseRect.height);
+            ctx.globalAlpha = prevAlpha;
+        }
+    }
+
+    const sortedPatterns = [...canvasPatterns].sort((a, b) => {
+        const za = parseInt(a.style.zIndex || '0', 10);
+        const zb = parseInt(b.style.zIndex || '0', 10);
+        return za - zb;
+    });
+
+    for (const item of sortedPatterns) {
+        const data = getPatternData(item);
+        const src = item.querySelector('.pattern-source')?.currentSrc || item.querySelector('.pattern-source')?.src || '';
+        if (!src) continue;
+
+        const tintedCanvas = await createTintedPatternCanvas(
+            src,
+            item.dataset.patternColor || DEFAULT_PATTERN_COLOR,
+            Math.round(data.width * scale),
+            Math.round(data.height * scale)
+        );
+
+        ctx.save();
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.globalAlpha = data.opacity;
+        ctx.translate(data.x, data.y);
+        ctx.rotate((data.rotate * Math.PI) / 180);
+        ctx.scale(data.scale, data.scale);
+        ctx.drawImage(tintedCanvas, -data.width / 2, -data.height / 2, data.width, data.height);
+        ctx.restore();
+    }
+
+    return exportCanvas;
+}
+
+async function saveCanvasAsImage() {
+    const ok = await withAuth(null, '请先登录后再保存作品');
+    if (!ok) return;
+
+    if (!dom.canvasContent) return;
+
+    const sourceImages = Array.from(dom.canvasContent.querySelectorAll('img.pattern-source'));
+    const baseImage = dom.baseModelImage && dom.baseModelImage.src ? [dom.baseModelImage] : [];
+    const allImages = [...sourceImages, ...baseImage];
+
+    try {
+        await waitForImagesToLoad(allImages);
+
+        const previousSelected = selectedPattern;
+        dom.canvasContent.classList.add('exporting-image');
+        clearSelection();
+
+        const renderCanvas = await renderDesignToCanvas(5);
+        const dataUrl = renderCanvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        const fileName = (dom.designNameInput?.value?.trim() || `我的设计_${Date.now()}`) + '.png';
+
+        link.href = dataUrl;
+        link.download = fileName;
+        link.click();
+
+        if (previousSelected) {
+            selectPattern(previousSelected);
+        }
+    } catch (error) {
+        console.error('导出图片失败:', error);
+        alert('导出作品失败：图片渲染出错，请检查纹样图片是否可访问后重试。');
+    } finally {
+        dom.canvasContent.classList.remove('exporting-image');
+    }
+}
+
+async function handlePatternListClick(e) {
+    const item = e.target.closest('.pattern-item');
+    if (!item) return;
+
+    const patternId = item.dataset.id;
+    const patternName = decodeURIComponent(item.dataset.encodedName || '');
+    const thumbnail = item.dataset.thumbnail || placeholderImage;
+
+    if (e.target.closest('.rename-btn')) {
+        const ok = await withAuth(null, '请先登录后再操作');
+        if (!ok) return;
+        await renamePattern(patternId, patternName);
+        return;
+    }
+
+    if (e.target.closest('.delete-btn')) {
+        const ok = await withAuth(null, '请先登录后再操作');
+        if (!ok) return;
+        await deletePattern(patternId);
+        return;
+    }
+
+    await withAuth(() => addToCanvas(patternId, thumbnail, patternName), '请先登录后再添加纹样');
+}
+
+const debouncedSearch = debounce((value) => {
+    renderSearchResults(value || '');
+}, 180);
+
+const debouncedResize = debounce(() => {
+    canvasPatterns.forEach(item => clampPatternToCanvas(item));
+}, 120);
+
+dom.uploadPatternBtn?.addEventListener('click', uploadAndExtractPattern);
+
+dom.systemPatternList?.addEventListener('click', handlePatternListClick);
+dom.userPatternList?.addEventListener('click', handlePatternListClick);
+
+dom.autoCutoutGroup?.addEventListener('change', () => {
+    dom.autoCutoutGroup.querySelectorAll('.upload-toggle-item').forEach(label => {
+        const input = label.querySelector('input');
+        label.classList.toggle('active', !!input?.checked);
+    });
+});
+
+dom.baseModelSelect?.addEventListener('change', async (e) => {
+    const ok = await withAuth(null, '请先登录后再选择基础器物');
+    if (!ok) {
+        e.target.value = '';
+        return;
+    }
+
+    const value = e.target.value;
+    syncBaseModelColorSchemeOptions(value);
+
+    if (value === 'canvas') {
+        dom.baseModelImage.src = '';
+        dom.baseModelImage.style.display = 'none';
+        dom.baseModelImage.dataset.modelType = 'canvas';
+        dom.baseModelImage.dataset.modelName = '画布';
+    } else if (value && baseModelMap[value]) {
+        const scheme = dom.colorSchemeInput?.value || 'original';
+        dom.baseModelImage.src = getBaseModelSrc(value, scheme);
+        dom.baseModelImage.style.display = 'block';
+        dom.baseModelImage.dataset.modelType = value;
+        dom.baseModelImage.dataset.modelName = baseModelMap[value].name;
+    } else {
+        dom.baseModelImage.src = '';
+        dom.baseModelImage.style.display = 'none';
+        dom.baseModelImage.dataset.modelType = '';
+        dom.baseModelImage.dataset.modelName = '';
+    }
+
+    maybeShowPlaceholder();
+});
+
+dom.clearCanvasBtn?.addEventListener('click', async () => {
+    const ok = await withAuth(null, '请先登录后再操作');
+    if (!ok) return;
+    clearCanvas();
+});
+
+dom.deleteSelectedBtn?.addEventListener('click', async () => {
+    const ok = await withAuth(null, '请先登录后再操作');
+    if (!ok) return;
+
+    if (!selectedPattern) {
+        alert('请先选中一个纹样');
+        return;
+    }
+
+    canvasPatterns = canvasPatterns.filter(item => item !== selectedPattern);
+    selectedPattern.remove();
+    selectedPattern = null;
+    syncProperties(null);
+    maybeShowPlaceholder();
+});
+
+dom.exportBtn?.addEventListener('click', async () => {
+    const ok = await withAuth(null, '请先登录后再导出设计');
+    if (!ok) return;
+
+    const data = collectDesignData();
+    const name = dom.designNameInput?.value?.trim() || `我的设计_${Date.now()}`;
+    downloadJson(`${name}.json`, data);
+});
+
+dom.saveDesignBtn?.addEventListener('click', saveCanvasAsImage);
+
+dom.bgColorInput?.addEventListener('input', (e) => {
+    if (dom.canvasContent) {
+        dom.canvasContent.style.backgroundColor = e.target.value;
+    }
+});
+
+dom.patternColorInput?.addEventListener('input', (e) => {
+    if (!selectedPattern) return;
+    selectedPattern.dataset.patternColor = e.target.value;
+    updatePatternAppearance(selectedPattern);
+    syncProperties(selectedPattern);
+});
+
+dom.opacityInput?.addEventListener('input', (e) => {
+    if (dom.opacityValue) {
+        dom.opacityValue.textContent = Number(e.target.value).toFixed(1);
+    }
+
+    if (selectedPattern) {
+        setPatternData(selectedPattern, { opacity: parseFloat(e.target.value) });
+        updatePatternVisual(selectedPattern);
+    }
+});
+
+dom.colorSchemeInput?.addEventListener('change', () => {
+    updateBaseModelAppearance();
+});
+
+dom.bringFrontBtn?.addEventListener('click', async () => {
+    const ok = await withAuth(null, '请先登录后再操作图层');
+    if (!ok || !selectedPattern) return;
+    selectedPattern.style.zIndex = String(++currentMaxZIndex);
+});
+
+dom.sendBackBtn?.addEventListener('click', async () => {
+    const ok = await withAuth(null, '请先登录后再操作图层');
+    if (!ok || !selectedPattern) return;
+    selectedPattern.style.zIndex = '3';
+});
+
+dom.patternSearch?.addEventListener('input', (e) => {
+    debouncedSearch(e.target.value || '');
+});
+
+dom.canvasContent?.addEventListener('click', (e) => {
+    if (e.target.id === 'canvasContent' || e.target.id === 'baseModelImage') {
+        clearSelection();
+    }
+});
+
+window.addEventListener('resize', debouncedResize, { passive: true });
+
+(async function () {
+    syncBaseModelColorSchemeOptions('');
+    await refreshAuthState(true);
+    await loadPatterns();
+    maybeShowPlaceholder();
+})();
+</script>
+{% endblock %}

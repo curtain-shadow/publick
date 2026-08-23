@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>云纹雅集 · 注册 · 草木灵境</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Noto Serif SC', '宋体', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #faf7f2 0%, #f0ebe1 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600' opacity='0.08'%3E%3Cpath fill='none' stroke='%238b7355' stroke-width='2' d='M200,300 Q220,260 260,280 Q300,300 320,270 Q340,240 380,250 Q420,260 400,300 Q380,340 340,330 Q300,320 280,350 Q260,380 220,360 Q180,340 200,300Z'/%3E%3Cpath fill='none' stroke='%238b7355' stroke-width='1.5' d='M500,150 Q530,120 570,140 Q610,160 630,130 Q650,100 680,120 Q710,140 690,170 Q670,200 640,190 Q610,180 590,210 Q570,240 540,220 Q510,200 500,150Z'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 300px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .register-card {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 245, 0.42);
+            backdrop-filter: blur(3px);
+            border-radius: 48px 24px 48px 24px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,245,0.6);
+            width: 100%;
+            max-width: 500px;
+            padding: 2.5rem 2rem 3rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(180, 150, 110, 0.35);
+        }
+
+        .seal-mark {
+            text-align: center;
+            margin-bottom: 1.2rem;
+        }
+        .seal-mark span {
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23b87c4f' d='M50,10 L65,35 L90,40 L70,60 L75,85 L50,72 L25,85 L30,60 L10,40 L35,35 Z' opacity='0.7'/%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+            opacity: 0.6;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 500;
+            letter-spacing: 4px;
+            color: #5a3e2b;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        h2:after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 2px;
+            background: #c7a87b;
+            margin: 0.8rem auto 0;
+            border-radius: 2px;
+        }
+        .sub {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #9b7a5c;
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 1.3rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #6a4e34;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: #fffef7;
+            border: 1px solid #e2d4c2;
+            border-radius: 32px;
+            outline: none;
+            transition: all 0.25s;
+            color: #3e2a1f;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        input:focus {
+            border-color: #c7a46b;
+            box-shadow: 0 0 0 3px rgba(199, 164, 107, 0.2);
+            background: #ffffff;
+        }
+
+        input.error {
+            border-color: #c75c3c;
+            background: #fff8f5;
+        }
+
+        .errorlist {
+            list-style: none;
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+        }
+        .errorlist li {
+            color: #c75c3c;
+            font-size: 0.75rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .non-field-errors {
+            background: #fff2ea;
+            border-left: 4px solid #c75c3c;
+            padding: 0.7rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #a44525;
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 3px;
+            background: #b36b3c;
+            color: #fffcf5;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 0.8rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        button:hover {
+            background: #9b5630;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(150, 80, 40, 0.2);
+        }
+
+        .messages {
+            margin-bottom: 1rem;
+        }
+        .message {
+            padding: 0.7rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        .message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+        }
+
+        .footer-links a {
+            color: #8d6b48;
+            text-decoration: none;
+            transition: 0.2s;
+            border-bottom: 1px dotted transparent;
+        }
+
+        .footer-links a:hover {
+            color: #b36b3c;
+            border-bottom-color: #b36b3c;
+        }
+
+        @media (max-width: 500px) {
+            .register-card {
+                padding: 2rem 1.5rem;
+            }
+            h2 {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* 印章动画 */
+        .register-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .seal-stamp {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.3) rotate(-15deg);
+            transform-origin: center center;
+            animation: stampIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .seal-stamp::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(200, 60, 40, 0.15), transparent 70%);
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .seal-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #b33a2c;
+            border-radius: 50%;
+            color: #b33a2c;
+            font-family: 'Noto Serif SC', '楷体', 'KaiTi', serif;
+            font-weight: bold;
+            transform: rotate(-10deg);
+            background: transparent;
+            box-shadow: inset 0 0 0 1px rgba(179, 58, 44, 0.3);
+        }
+
+        .seal-content::after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 1px solid rgba(179, 58, 44, 0.4);
+            border-radius: 50%;
+        }
+
+        .seal-char {
+            font-size: 1.8rem;
+            line-height: 1.2;
+            letter-spacing: 4px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .seal-sub {
+            font-size: 0.6rem;
+            opacity: 0.8;
+            letter-spacing: 2px;
+        }
+
+        @keyframes stampIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) rotate(-25deg) translateY(30px);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.1) rotate(-8deg) translateY(-5px);
+            }
+            80% {
+                transform: scale(0.95) rotate(-11deg) translateY(2px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(-10deg) translateY(0);
+            }
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 1;
+        }
+
+        /* 额外草叶飘落点缀 */
+        .grass-blade {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+    <div class="register-card">
+        <div class="seal-mark">
+            <span></span>
+        </div>
+        <h2>云纹雅集</h2>
+        <div class="sub">· 祥瑞入藏 ·</div>
+
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if form.non_field_errors %}
+            <div class="non-field-errors">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" novalidate id="registerForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">用户名</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">邮箱</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.email.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">密码</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password_confirm.id_for_label }}">确认密码</label>
+                {{ form.password_confirm }}
+                {% if form.password_confirm.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.password_confirm.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <button type="submit" id="submitBtn">注 册 雅 集</button>
+        </form>
+
+        <div class="footer-links">
+            <a href="{% url 'login' %}">已有账号？去登录</a>
+            <a href="{% url 'index' %}">访客浏览</a>
+        </div>
+    </div>
+
+<script>
+    (function() {
+        const form = document.getElementById('registerForm');
+        const card = document.querySelector('.register-card');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        const hasErrors = document.querySelector('.errorlist, .non-field-errors, .message.error') !== null;
+        if (hasErrors) {
+            return;
+        }
+        
+        form.addEventListener('submit', function(e) {
+            const username = document.querySelector('input[name="username"]').value.trim();
+            const email = document.querySelector('input[name="email"]').value.trim();
+            const password = document.querySelector('input[name="password"]').value;
+            const passwordConfirm = document.querySelector('input[name="password_confirm"]').value;
+            
+            if (!username || !email || !password || !passwordConfirm) {
+                return;
+            }
+            if (password !== passwordConfirm) {
+                return;
+            }
+            if (password.length < 8) {
+                return;
+            }
+            
+            e.preventDefault();
+            
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = '注册中...';
+            submitBtn.disabled = true;
+            
+            const oldSeal = card.querySelector('.seal-stamp');
+            if (oldSeal) oldSeal.remove();
+            
+            const seal = document.createElement('div');
+            seal.className = 'seal-stamp';
+            seal.innerHTML = `
+                <div class="seal-content">
+                    <span class="seal-char">注册</span>
+                    <span class="seal-char">成功</span>
+                    <span class="seal-sub">雅集</span>
+                </div>
+            `;
+            card.appendChild(seal);
+            
+            setTimeout(() => {
+                form.submit();
+            }, 800);
+        });
+    })();
+</script>
+
+<script>
+    (function() {
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        const card = document.querySelector('.register-card');
+        
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        
+        // 获取左侧空白区域边界（屏幕最左侧 → 卡片左侧边缘）
+        function getLeftZoneBounds() {
+            const cardRect = card.getBoundingClientRect();
+            return {
+                left: 0,
+                right: cardRect.left,
+                top: 0,
+                bottom: window.innerHeight,
+                width: cardRect.left,
+                height: window.innerHeight
+            };
+        }
+        
+        // 获取右侧空白区域边界（卡片右侧边缘 → 屏幕最右侧）
+        function getRightZoneBounds() {
+            const cardRect = card.getBoundingClientRect();
+            return {
+                left: cardRect.right,
+                right: window.innerWidth,
+                top: 0,
+                bottom: window.innerHeight,
+                width: window.innerWidth - cardRect.right,
+                height: window.innerHeight
+            };
+        }
+        
+        // ---------- 🌿 柳树 SVG（左侧底层）----------
+        const willowTree = new Image();
+        willowTree.src = '/static/images/柳树.svg';
+        let willowLoaded = false;
+        willowTree.onload = () => {
+            willowLoaded = true;
+            console.log('🌿 柳树SVG加载完成（左侧）');
+        };
+        willowTree.onerror = () => {
+            console.warn('⚠️ 柳树加载失败，检查路径 /static/images/柳树.svg');
+        };
+        
+        // ---------- 🌊 湖泊 SVG（右侧底层）----------
+        const lakeImage = new Image();
+        lakeImage.src = '/static/images/湖泊.svg';
+        let lakeLoaded = false;
+        lakeImage.onload = () => {
+            lakeLoaded = true;
+            console.log('🌊 湖泊SVG加载完成（右侧）');
+        };
+        lakeImage.onerror = () => {
+            console.warn('⚠️ 湖泊加载失败，检查路径 /static/images/湖泊.svg');
+        };
+        
+        // ---------- 🌸 花朵 SVG（页面右上角，向左旋转45度）----------
+        const flowerImage = new Image();
+        flowerImage.src = '/static/images/花.svg';
+        let flowerLoaded = false;
+        flowerImage.onload = () => {
+            flowerLoaded = true;
+            console.log('🌸 花朵SVG加载完成（右上角，旋转-45°）');
+        };
+        flowerImage.onerror = () => {
+            console.warn('⚠️ 花朵加载失败，检查路径 /static/images/花.svg');
+        };
+        
+        // ---------- 🌿 多草丛 SVG（右侧）----------
+        const grassImage = new Image();
+        grassImage.src = '/static/images/草.svg';
+        let grassLoaded = false;
+        grassImage.onload = () => {
+            grassLoaded = true;
+            console.log('🌿 草丛SVG加载完成（右侧）');
+        };
+        grassImage.onerror = () => {
+            console.warn('⚠️ 草丛加载失败，检查路径 /static/images/草.svg');
+        };
+        
+        // 多草丛配置：全部位于右侧空白区域，大小错落有致
+        const grassClusters = [
+            { x: 20, width: 140, height: 85 },
+            { x: 70, width: 170, height: 105 },
+            { x: 130, width: 120, height: 75 },
+            { x: 180, width: 190, height: 115 },
+            { x: 250, width: 135, height: 82 },
+            { x: 310, width: 155, height: 95 },
+            { x: 370, width: 110, height: 68 },
+            { x: 410, width: 125, height: 78 }
+        ];
+        
+        // 双鹿图片（右侧，点头互碰）
+        const deerLeft = new Image();
+        const deerRight = new Image();
+        deerLeft.src = '/static/images/鹿.svg';
+        deerRight.src = '/static/images/鹿.svg';
+        let deerLoaded = false;
+        let deerLoadCount = 0;
+        
+        // 第三匹鹿（静态喝水 - 湖泊左上方）
+        const leftDrinkingDeer = new Image();
+        leftDrinkingDeer.src = '/static/images/鹿.svg';
+        let leftDrinkingDeerLoaded = false;
+        
+        // 第四匹鹿（静态 - 湖泊右上角，与第三匹鹿遥遥相望）
+        const rightStandingDeer = new Image();
+        rightStandingDeer.src = '/static/images/鹿.svg';
+        let rightStandingDeerLoaded = false;
+        
+        function deerLoadCheck() {
+            deerLoadCount++;
+            if (deerLoadCount === 2) {
+                deerLoaded = true;
+                console.log('🦌 双鹿已加载（右侧底部，点头互碰）');
+            }
+        }
+        deerLeft.onload = deerLoadCheck;
+        deerRight.onload = deerLoadCheck;
+        
+        leftDrinkingDeer.onload = () => {
+            leftDrinkingDeerLoaded = true;
+            console.log('🦌 第三匹鹿已加载（湖泊左上方，静态喝水）');
+        };
+        leftDrinkingDeer.onerror = () => {
+            console.warn('⚠️ 第三匹鹿加载失败');
+        };
+        
+        rightStandingDeer.onload = () => {
+            rightStandingDeerLoaded = true;
+            console.log('🦌 第四匹鹿已加载（湖泊右上角，与第三匹鹿遥遥相望）');
+        };
+        rightStandingDeer.onerror = () => {
+            console.warn('⚠️ 第四匹鹿加载失败');
+        };
+        
+        const DEER_WIDTH = 110;
+        const DEER_HEIGHT = 85;
+        const DRINKING_DEER_WIDTH = 95;
+        const DRINKING_DEER_HEIGHT = 75;
+        const STANDING_DEER_WIDTH = 100;
+        const STANDING_DEER_HEIGHT = 80;
+        
+        // 获取点头鹿的位置（基于右侧空白区域，底部）
+        function getDeerPositions() {
+            const rightZone = getRightZoneBounds();
+            const zoneCenterX = rightZone.left + rightZone.width / 2;
+            const groundY = rightZone.bottom - 180;
+            
+            return {
+                leftDeer: {
+                    x: zoneCenterX - 100,
+                    y: groundY - 90
+                },
+                rightDeer: {
+                    x: zoneCenterX - 0,
+                    y: groundY - 90
+                }
+            };
+        }
+        
+        // 获取喝水鹿的位置（湖泊左上方）
+        function getLeftDrinkingDeerPosition() {
+            const rightZone = getRightZoneBounds();
+            // 湖泊左上方区域（保留您的参数：x+30, y+150）
+            const lakeLeftX = rightZone.left + 30;
+            const lakeTopY = rightZone.top + 150;
+            
+            return {
+                x: lakeLeftX,
+                y: lakeTopY
+            };
+        }
+        
+        // 获取第四匹鹿的位置（湖泊右上角，与第三匹鹿遥遥相望）
+        function getRightStandingDeerPosition() {
+            const rightZone = getRightZoneBounds();
+            // 湖泊右上角区域（保留您的参数）
+            const lakeRightX = rightZone.left + rightZone.width - 120;
+            const lakeTopY = rightZone.top + 225;
+            
+            return {
+                x: lakeRightX,
+                y: lakeTopY
+            };
+        }
+
+        // 动画变量：头部点头摆动
+        let time = 0;
+        let headAngle = 0;
+        
+        // 绘制左侧柳树（占满左侧空白区域）
+        function drawWillowTree() {
+            if (!willowLoaded) return;
+            const leftZone = getLeftZoneBounds();
+            const treeWidth = leftZone.width + 50;
+            const treeHeight = leftZone.height + 150;
+            const treeX = -25;
+            const treeY = -10;
+            
+            ctx.drawImage(willowTree, treeX, treeY, treeWidth, treeHeight);
+        }
+        
+        // 绘制右侧湖泊
+        function drawLake() {
+            if (!lakeLoaded) return;
+            const rightZone = getRightZoneBounds();
+            const lakeWidth = rightZone.width + 50;
+            const lakeHeight = rightZone.height + 50;
+            const lakeX = rightZone.left - 25;
+            const lakeY = -25;
+            
+            ctx.drawImage(lakeImage, lakeX, lakeY, lakeWidth, lakeHeight);
+        }
+        
+        // 绘制右上角花朵（向左旋转45度）
+        function drawFlower() {
+            if (!flowerLoaded) return;
+            const flowerWidth = 80;
+            const flowerHeight = 80;
+            // 页面右上角位置（保留您的参数：y=20）
+            const flowerX = width - 100;
+            const flowerY = 20;
+            
+            ctx.save();
+            ctx.translate(flowerX + flowerWidth/2, flowerY + flowerHeight/2);
+            ctx.rotate(-45 * Math.PI / 180);
+            ctx.drawImage(flowerImage, -flowerWidth/2, -flowerHeight/2, flowerWidth, flowerHeight);
+            ctx.restore();
+        }
+        
+        // 绘制右侧草丛
+        function drawMultiGrass() {
+            if (!grassLoaded) return;
+            const rightZone = getRightZoneBounds();
+            const groundBottom = rightZone.bottom - 60;
+            
+            for (let g of grassClusters) {
+                const y = groundBottom - g.height;
+                const x = rightZone.left + g.x;
+                ctx.drawImage(grassImage, x, y, g.width, g.height);
+            }
+            
+            // 额外加两丛随风摆动的前景草
+            if (grassLoaded) {
+                const sway = Math.sin(time * 1.8) * 3;
+                ctx.drawImage(grassImage, rightZone.left + 15 + sway, groundBottom - 72, 100, 65);
+                ctx.drawImage(grassImage, rightZone.left + 380 + Math.sin(time * 1.5) * 2, groundBottom - 68, 95, 62);
+            }
+        }
+        
+        // 绘制右侧双鹿（点头互碰）
+        function drawDeer() {
+            if (!deerLoaded) return;
+            const positions = getDeerPositions();
+            
+            // 左鹿（正常方向，头部向右摆动）
+            ctx.save();
+            ctx.translate(positions.leftDeer.x + 70, positions.leftDeer.y + 45);
+            ctx.rotate(headAngle * Math.PI / 180);
+            ctx.drawImage(deerLeft, -70, -45, DEER_WIDTH, DEER_HEIGHT);
+            ctx.restore();
+            
+            // 右鹿（水平翻转，头部向左摆动）
+            ctx.save();
+            ctx.translate(positions.rightDeer.x + 40, positions.rightDeer.y + 45);
+            ctx.scale(-1, 1);
+            ctx.rotate(headAngle * Math.PI / 180);
+            ctx.drawImage(deerRight, -40, -45, DEER_WIDTH, DEER_HEIGHT);
+            ctx.restore();
+        }
+        
+        // 绘制第三匹鹿（湖泊左上方，静态喝水）
+        function drawLeftDrinkingDeer() {
+            if (!leftDrinkingDeerLoaded) return;
+            const pos = getLeftDrinkingDeerPosition();
+            
+            // 静态喝水姿态：头部微微向下倾斜（模拟喝水）
+            ctx.save();
+            ctx.translate(pos.x + 50, pos.y + 40);
+            // 轻微低头旋转 -8 度，模拟喝水（保留您的参数）
+            ctx.rotate(-8 * Math.PI / 180);
+            ctx.drawImage(leftDrinkingDeer, -50, -40, DRINKING_DEER_WIDTH, DRINKING_DEER_HEIGHT);
+            ctx.restore();
+        }
+        
+        // 绘制第四匹鹿（湖泊右上角，与第三匹鹿遥遥相望）
+        function drawRightStandingDeer() {
+            if (!rightStandingDeerLoaded) return;
+            const pos = getRightStandingDeerPosition();
+            
+            ctx.save();
+            ctx.translate(pos.x + 50, pos.y + 40);
+            // 水平翻转，面朝左边，与左上方鹿对视
+            ctx.scale(-1, 1);
+            // 轻微抬头，与喝水鹿形成呼应（保留您的参数：+5度）
+            ctx.rotate(5 * Math.PI / 180);
+            ctx.drawImage(rightStandingDeer, -50, -40, STANDING_DEER_WIDTH, STANDING_DEER_HEIGHT);
+            ctx.restore();
+        }
+
+        // 动画循环
+        function animate() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, width, height);
+            time += 0.025;
+            
+            // 头部摆动角度：正弦摆动（保留您的参数：* 6）
+            headAngle = Math.sin(time * 2.2) * 6;
+            
+            // ========== 图层顺序（从底到顶）==========
+            drawWillowTree();           // 第1层：左侧柳树
+            drawLake();                 // 第2层：右侧湖泊
+            drawMultiGrass();           // 第3层：右侧草丛
+            drawDeer();                 // 第4层：底部双鹿（点头互碰）
+            drawLeftDrinkingDeer();     // 第5层：第三匹鹿（湖泊左上方，喝水）
+            drawRightStandingDeer();    // 第6层：第四匹鹿（湖泊右上角，遥遥相望）
+            drawFlower();               // 第7层：右上角花朵
+            
+            // 飘落草叶装饰（右侧区域）
+            ctx.globalAlpha = 0.35;
+            for (let i = 0; i < 16; i++) {
+                const t = (time * 2.2 + i) % (Math.PI * 2);
+                const rightZone = getRightZoneBounds();
+                const flakeX = rightZone.left + rightZone.width * 0.2 + Math.sin(t) * 18 + i * 25;
+                const flakeY = rightZone.bottom - 110 + Math.cos(t * 1.5) * 14;
+                ctx.fillStyle = '#7c9a5e';
+                ctx.beginPath();
+                ctx.moveTo(flakeX, flakeY);
+                ctx.lineTo(flakeX - 4, flakeY - 10);
+                ctx.lineTo(flakeX + 4, flakeY - 12);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // 窗口自适应
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            console.log(`📐 Canvas 尺寸: ${width} × ${height}`);
+            console.log(`   左侧空白区域宽度: ${getLeftZoneBounds().width}px（柳树）`);
+            console.log(`   右侧空白区域宽度: ${getRightZoneBounds().width}px（湖泊+草丛+双鹿）`);
+            console.log(`   右上角花朵位置: (${width - 90}, 20) 旋转-45度`);
+            console.log(`   喝水鹿位置: 湖泊左上方 (x+30, y+150)`);
+            console.log(`   相望鹿位置: 湖泊右上角`);
+        }
+        
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+        
+        resizeCanvas();
+        animate();
+        
+        console.log('✨ 布局：左侧柳树 | 右侧湖泊+草丛+底部双鹿（点头）+左上方喝水鹿+右上方相望鹿 | 右上角花朵');
+    })();
+</script>
+
+<!-- 针对svg路径不存在时的优雅降级，在本地调试时若图片缺失不影响结构，但会显示占位 -->
+</body>
+</html>

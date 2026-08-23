@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>纹样问答专区</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Microsoft YaHei", sans-serif;
+      }
+      body {
+        background: #faf6f0;
+        padding: 96px 20px 32px;
+        color: #2f241b;
+      }
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      .back-top-left {
+        position: sticky;
+        top: 76px;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 18px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        color: #f59e0b;
+        cursor: pointer;
+        font-size: 16px;
+        z-index: 20;
+        background: rgba(255, 253, 249, 0.95);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+      }
+      .title {
+        text-align: center;
+        font-size: 28px;
+        margin: 4px 0 20px;
+      }
+      .tab-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .tab {
+        padding: 10px 20px;
+        border-radius: 20px;
+        border: none;
+        cursor: pointer;
+        background: #fff;
+      }
+      .tab.active {
+        background: #f59e0b;
+        color: #fff;
+      }
+      .toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .publish-btn {
+        background: #f59e0b;
+        color: #fff;
+        border: none;
+        padding: 14px 18px;
+        border-radius: 16px;
+        font-size: 16px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .search-bar {
+        display: flex;
+        gap: 10px;
+      }
+      .search-input {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        background: #fff;
+      }
+      .search-btn {
+        padding: 12px 20px;
+        background: #f59e0b;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+      }
+      .section-card,
+      .qa-item,
+      .kb-item,
+      .loading,
+      .empty,
+      .error-box {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+      }
+      .section-card {
+        padding: 18px;
+      }
+      .sort-bar {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .sort-btn {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid #f2d8ae;
+        background: #fff7eb;
+        color: #a05f00;
+        cursor: pointer;
+      }
+      .sort-btn.active {
+        background: #f59e0b;
+        color: #fff;
+        border-color: #f59e0b;
+      }
+      .qa-item,
+      .kb-item {
+        padding: 20px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .qa-item:hover,
+      .kb-item:hover {
+        background: #fdfaf6;
+        transform: translateY(-1px);
+      }
+      .qa-title,
+      .kb-item h4 {
+        font-size: 20px;
+        margin-bottom: 8px;
+        font-weight: bold;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+      .reward,
+      .tag {
+        display: inline-block;
+        background: #fff0d9;
+        color: #e67700;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 13px;
+        margin-right: 8px;
+      }
+      .qa-info,
+      .kb-desc {
+        color: #777;
+        font-size: 14px;
+        margin-bottom: 10px;
+        line-height: 1.7;
+      }
+      .qa-media,
+      .kb-media {
+        margin-bottom: 12px;
+      }
+      .qa-media-grid,
+      .kb-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+      }
+      .qa-image,
+      .kb-image {
+        width: 100%;
+        height: 170px;
+        object-fit: cover;
+        border-radius: 14px;
+        display: block;
+        background: #f5f5f5;
+      }
+      .stats {
+        display: flex;
+        gap: 15px;
+        color: #666;
+        font-size: 14px;
+        flex-wrap: wrap;
+      }
+      .knowledge-base {
+        margin-top: 20px;
+      }
+      .kb-category {
+        margin-bottom: 20px;
+      }
+      .kb-category h3 {
+        font-size: 18px;
+        margin-bottom: 12px;
+        color: #333;
+      }
+      .loading,
+      .empty,
+      .error-box {
+        text-align: center;
+        padding: 28px 16px;
+        color: #999;
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 88px 14px 28px;
+        }
+        .toolbar {
+          grid-template-columns: 1fr;
+        }
+        .back-top-left {
+          top: 70px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="back-top-left" onclick="goCommunityHome()">
+        ← 返回灵感漫游首页
+      </div>
+      <h2 class="title">纹样问答专区</h2>
+
+      <div class="tab-group">
+        <button class="tab active" data-tab="all">全部问题</button>
+        <button class="tab" data-tab="knowledge">精选知识</button>
+      </div>
+
+      <div id="allQuestions" class="section-card">
+        <div class="toolbar">
+          <div class="search-bar">
+            <input
+              id="qaSearch"
+              class="search-input"
+              placeholder="搜索问题标题或内容..."
+            />
+            <button class="search-btn" type="button" onclick="renderQA()">
+              搜索
+            </button>
+          </div>
+          <button class="publish-btn" type="button" onclick="goPublishQa()">
+            发布提问
+          </button>
+        </div>
+
+        <div class="sort-bar">
+          <button class="sort-btn active" type="button" data-sort="new">
+            最新
+          </button>
+          <button class="sort-btn" type="button" data-sort="hot">最热</button>
+          <button class="sort-btn" type="button" data-sort="view">
+            最多浏览
+          </button>
+          <button class="sort-btn" type="button" data-sort="answer">
+            最多回答
+          </button>
+        </div>
+
+        <div id="qaList" class="loading">正在加载问答内容…</div>
+      </div>
+
+      <div
+        id="knowledgeBase"
+        class="section-card knowledge-base"
+        style="display: none"
+      >
+        <div class="search-bar" style="margin-bottom: 18px">
+          <input
+            id="kbSearch"
+            class="search-input"
+            placeholder="检索精选问答..."
+          />
+          <button class="search-btn" type="button" onclick="renderKnowledge()">
+            搜索
+          </button>
+        </div>
+
+        <div class="kb-category">
+          <h3>🔥 热门问答精选</h3>
+          <div id="featuredList" class="loading">正在整理内容…</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "/api/community/posts/";
+      const QA_STATE_KEY = "community_qa_page_state";
+      let qaList = [];
+      let currentTab = "all";
+      let currentSort = "new";
+
+      function escapeHtml(text) {
+        if (text === null || text === undefined) return "";
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function formatTime(timeStr) {
+        if (!timeStr) return "";
+        const date = new Date(timeStr);
+        return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("zh-CN");
+      }
+
+      function getPreviewText(content, maxLen = 90) {
+        if (!content) return "";
+        return content.length > maxLen
+          ? `${content.slice(0, maxLen)}...`
+          : content;
+      }
+
+      function getImageList(item) {
+        const mediaList = Array.isArray(item.media) ? item.media : [];
+        return mediaList.filter(
+          (media) =>
+            media.media_type === "image" && (media.file_url || media.file),
+        );
+      }
+
+      function savePageState() {
+        sessionStorage.setItem(
+          QA_STATE_KEY,
+          JSON.stringify({
+            tab: currentTab,
+            sort: currentSort,
+            qaSearch: document.getElementById("qaSearch").value,
+            kbSearch: document.getElementById("kbSearch").value,
+            scrollY: window.scrollY,
+          }),
+        );
+      }
+
+      function restorePageState() {
+        const raw = sessionStorage.getItem(QA_STATE_KEY);
+        if (!raw) return;
+        try {
+          const state = JSON.parse(raw);
+          currentTab = state.tab || "all";
+          currentSort = state.sort || "new";
+          document.getElementById("qaSearch").value = state.qaSearch || "";
+          document.getElementById("kbSearch").value = state.kbSearch || "";
+          switchTab(currentTab, false);
+          document.querySelectorAll(".sort-btn").forEach((btn) => {
+            btn.classList.toggle("active", btn.dataset.sort === currentSort);
+          });
+          setTimeout(
+            () =>
+              window.scrollTo({ top: state.scrollY || 0, behavior: "auto" }),
+            0,
+          );
+        } catch (error) {
+          console.error("恢复问答页状态失败：", error);
+        }
+      }
+
+      function goCommunityHome() {
+        window.location.href = "/community/posts/";
+      }
+
+      function goPublishQa() {
+        window.location.href = "/community/publish/qa/";
+      }
+
+      function goQaDetail(id) {
+        savePageState();
+        window.location.href = `/community/qa/${id}/`;
+      }
+
+      function getFilteredQAList() {
+        const kw = document
+          .getElementById("qaSearch")
+          .value.trim()
+          .toLowerCase();
+        let result = [...qaList];
+
+        if (kw) {
+          result = result.filter((item) => {
+            const title = (item.title || "").toLowerCase();
+            const content = (item.content || "").toLowerCase();
+            return title.includes(kw) || content.includes(kw);
+          });
+        }
+
+        switch (currentSort) {
+          case "hot":
+            result.sort((a, b) => {
+              const hotA =
+                (a.like_count || 0) * 2 +
+                (a.comment_count || 0) * 3 +
+                (a.view_count || 0);
+              const hotB =
+                (b.like_count || 0) * 2 +
+                (b.comment_count || 0) * 3 +
+                (b.view_count || 0);
+              return hotB - hotA;
+            });
+            break;
+          case "view":
+            result.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+            break;
+          case "answer":
+            result.sort(
+              (a, b) => (b.comment_count || 0) - (a.comment_count || 0),
+            );
+            break;
+          default:
+            result.sort(
+              (a, b) => new Date(b.created_at) - new Date(a.created_at),
+            );
+        }
+
+        return result;
+      }
+
+      function renderQA() {
+        const listEl = document.getElementById("qaList");
+        const filtered = getFilteredQAList();
+        savePageState();
+
+        if (!filtered.length) {
+          listEl.className = "empty";
+          listEl.innerHTML = "暂无相关问题";
+          return;
+        }
+
+        listEl.className = "";
+        listEl.innerHTML = filtered
+          .map((qa) => {
+            const imageList = getImageList(qa);
+            const mediaHtml = imageList.length
+              ? `
+              <div class="qa-media">
+                <div class="qa-media-grid">
+                  ${imageList
+                    .slice(0, 3)
+                    .map(
+                      (item) => `
+                    <img
+                      class="qa-image"
+                      src="${escapeHtml(item.file_url || item.file || "")}"
+                      alt="${escapeHtml(qa.alt_text || qa.title || "问答图片")}"
+                    />
+                  `,
+                    )
+                    .join("")}
+                </div>
+              </div>
+            `
+              : "";
+
+            return `
+            <div class="qa-item" onclick="goQaDetail(${qa.id})">
+              <div class="qa-title">
+                ${escapeHtml(qa.title || "未命名问题")}
+              </div>
+              <div style="margin-bottom: 10px;">
+                <span class="tag">问答</span>
+                ${qa.comment_status === "closed" ? '<span class="tag">已关闭回答</span>' : ""}
+                ${qa.visibility === "private" ? '<span class="tag">私密</span>' : ""}
+              </div>
+              <div class="qa-info">
+                提问者：${escapeHtml(qa.author_name || "匿名用户")} · ${formatTime(qa.created_at)}
+              </div>
+              <div class="qa-info">${escapeHtml(getPreviewText(qa.content || ""))}</div>
+              ${mediaHtml}
+              <div class="stats">
+                <span>💬 ${qa.comment_count || 0} 个回答</span>
+                <span>👍 ${qa.like_count || 0}</span>
+                <span>⭐ ${qa.favorite_count || 0}</span>
+                <span>👀 ${qa.view_count || 0}</span>
+              </div>
+            </div>
+          `;
+          })
+          .join("");
+      }
+
+      // 只修改了这里 ↓↓↓
+      function renderKnowledge() {
+        const kw = document
+          .getElementById("kbSearch")
+          .value.trim()
+          .toLowerCase();
+        const listEl = document.getElementById("featuredList");
+
+        // 精选规则：回答≥2 且 点赞≥3，和普通列表筛选不重复
+        let featured = [...qaList].filter((item) => {
+          const answerCount = item.comment_count || 0;
+          const likeCount = item.like_count || 0;
+          return answerCount >= 2 && likeCount >= 3;
+        });
+
+        // 搜索过滤
+        if (kw) {
+          featured = featured.filter((item) => {
+            const title = (item.title || "").toLowerCase();
+            const content = (item.content || "").toLowerCase();
+            return title.includes(kw) || content.includes(kw);
+          });
+        }
+
+        if (!featured.length) {
+          listEl.className = "empty";
+          listEl.innerHTML = "暂无满足优质标准的知识内容";
+          return;
+        }
+
+        // 综合权重排序
+        featured.sort((a, b) => {
+          const scoreA = (a.like_count || 0) + (a.comment_count || 0) * 2;
+          const scoreB = (b.like_count || 0) + (b.comment_count || 0) * 2;
+          return scoreB - scoreA;
+        });
+
+        listEl.innerHTML = featured
+          .map(
+            (qa) => `
+        <div class="kb-item" onclick="goQaDetail(${qa.id})">
+          <h4>📖 ${escapeHtml(qa.title || "未命名问题")}</h4>
+          <p class="kb-desc">${escapeHtml(getPreviewText(qa.content || "", 100))}</p>
+          <div style="font-size:12px; color:#999; margin-top:6px;">
+            优质问答 · ${qa.like_count || 0}赞 · ${qa.comment_count || 0}条回答
+          </div>
+        </div>
+      `,
+          )
+          .join("");
+      }
+      // 只修改了这里 ↑↑↑
+
+      function switchTab(tabType, shouldSave = true) {
+        currentTab = tabType;
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.classList.toggle("active", tab.dataset.tab === tabType);
+        });
+        document.getElementById("allQuestions").style.display =
+          tabType === "all" ? "block" : "none";
+        document.getElementById("knowledgeBase").style.display =
+          tabType === "knowledge" ? "block" : "none";
+        if (tabType === "knowledge") {
+          renderKnowledge();
+        } else {
+          renderQA();
+        }
+        if (shouldSave) savePageState();
+      }
+
+      async function loadQAList() {
+        const listEl = document.getElementById("qaList");
+        listEl.className = "loading";
+        listEl.innerHTML = "正在加载问答内容…";
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "GET",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || data.code !== 200) {
+            throw new Error(data.message || "加载失败");
+          }
+
+          qaList = (Array.isArray(data.results) ? data.results : []).filter(
+            (item) => item.post_type === "qa",
+          );
+          restorePageState();
+          if (currentTab === "knowledge") {
+            renderKnowledge();
+          } else {
+            renderQA();
+          }
+        } catch (error) {
+          console.error("加载问答列表失败：", error);
+          listEl.className = "error-box";
+          listEl.innerHTML = "问答列表加载失败，请稍后重试。";
+          document.getElementById("featuredList").className = "error-box";
+          document.getElementById("featuredList").innerHTML =
+            "精选问答加载失败，请稍后重试。";
+        }
+      }
+
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => switchTab(tab.dataset.tab));
+      });
+
+      document.querySelectorAll(".sort-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".sort-btn")
+            .forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+          currentSort = this.dataset.sort;
+          renderQA();
+        });
+      });
+
+      document
+        .getElementById("qaSearch")
+        .addEventListener("keypress", function (event) {
+          if (event.key === "Enter") renderQA();
+        });
+
+      document
+        .getElementById("kbSearch")
+        .addEventListener("keypress", function (event) {
+          if (event.key === "Enter") renderKnowledge();
+        });
+
+      window.addEventListener("beforeunload", savePageState);
+      loadQAList();
+    </script>
+  </body>
+</html>
